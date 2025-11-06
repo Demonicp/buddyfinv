@@ -3,7 +3,13 @@
       <aside class="sidebar">
         <h2 class="logo">BUDDYFINV</h2>
         <nav>
-          <button @click="ir('dashboard')" :class="{ activo: ruta === 'dashboard' }">Dashboard</button>
+          <button
+            v-if="rolUsuario === 'ADMIN'"
+            @click="ir('dashboard')"
+            :class="{ activo: ruta === 'dashboard' }"
+          >
+            Dashboard
+          </button>
           <button @click="ir('acciones')" :class="{ activo: ruta === 'acciones' }">Acciones</button>
           <button @click="ir('inventario')" :class="{ activo: ruta === 'inventario' }">Inventario</button>
           <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">Gráficas</button>
@@ -19,26 +25,37 @@
   </template>
   
   <script>
-  export default {
-    data() {
-      return {
-        ruta: this.$route.name
-      }
-    },
-    watch: {
-      '$route.name'(nueva) {
-        this.ruta = nueva
-      }
-    },
-    methods: {
-      ir(nombreRuta) {
-        this.$router.push({ name: nombreRuta })
+    import { jwtDecode } from 'jwt-decode'
+
+    export default {
+      data() {
+        return {
+          ruta: this.$route.name,
+          rolUsuario: ''
+        };
       },
-      cerrarSesion() {
-        this.$router.push({ name: 'Login' })
+      mounted() {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const decoded = jwtDecode(token);
+          this.rolUsuario = decoded.rol || decoded.authorities?.[0] || '';
+        }
+      },
+      watch: {
+        '$route.name'(nueva) {
+          this.ruta = nueva;
+        }
+      },
+      methods: {
+        ir(nombreRuta) {
+          this.$router.push({ name: nombreRuta });
+        },
+        cerrarSesion() {
+          this.$router.push({ name: 'Login' });
+        }
       }
-    }
-  }
+    };
+
   </script>
   
   <style scoped>

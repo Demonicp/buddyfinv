@@ -16,22 +16,21 @@ public class EstadoVenta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_estado_venta")
-    private int idEstadoVenta;
+    private Long idEstadoVenta;
 
     @Column(name = "observacion")
     private String observacion;
 
-    @Column(name = "cantidad", nullable = false)
-    private int cantidad;
+
 
     // Constructor por defecto
     public EstadoVenta() {
     }
 
     // Constructor con parámetros
-    public EstadoVenta(String observacion, int cantidad) {
+    public EstadoVenta(String observacion) {
         this.observacion = observacion;
-        this.cantidad = cantidad;
+
     }
 
 }

@@ -1,7 +1,8 @@
-import { UsuarioDTO } from '../models/Usuario.js'
+// providers/ventaProvider.js
+import { crearVentaDTO } from '../models/VentaDTO.js'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-const USUARIOS_BASE = `${API_BASE_URL}/usuarios`
+const VENTAS_BASE = `${API_BASE_URL}/api/ventas`
 
 async function handleResponse(response) {
   if (!response.ok) {
@@ -9,20 +10,28 @@ async function handleResponse(response) {
     const message = text || `${response.status} ${response.statusText}`
     throw new Error(message)
   }
+
   const contentType = response.headers.get('content-type') || ''
   if (contentType.includes('application/json')) {
     return response.json()
   }
+
   return response.text()
 }
 
-export const UsuarioProvider = {
-  async getAll() {
-    const res = await fetch(`${USUARIOS_BASE}/all`, {
+export const VentaProvider = {
+  async getDetalladas() {
+    const token = localStorage.getItem('token') // Asegúrate de que el token esté guardado correctamente
+
+    const res = await fetch(`${VENTAS_BASE}/detalladas`, {
       method: 'GET',
-      credentials: 'include'
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     })
+
     const data = await handleResponse(res)
-    return Array.isArray(data) ? data.map(u => new UsuarioDTO(u)) : []
+    return Array.isArray(data) ? data.map(crearVentaDTO) : []
   }
 }

@@ -2,10 +2,13 @@ package com.es.backendbuddyfinv.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.es.backendbuddyfinv.dto.DetalleProductoDTO;
+import com.es.backendbuddyfinv.dto.VentaDetalladaDTO;
 import com.es.backendbuddyfinv.model.Venta;
 import com.es.backendbuddyfinv.repository.VentaRepository;
 
@@ -14,6 +17,40 @@ public class VentaService {
 
     @Autowired
     private VentaRepository ventaRepository;
+
+    public List<VentaDetalladaDTO> listarVentasDetalladas(Long idPropietario) {
+        List<Venta> ventas = ventaRepository.findVentasDetalladasByPropietarioId(idPropietario);
+    
+        return ventas.stream().map(v -> {
+            List<DetalleProductoDTO> productos = v.getDetalleVentas().stream()
+                .map(dv -> new DetalleProductoDTO(
+                    dv.getProducto().getNombre(),
+                    dv.getCantidad(),
+                    dv.getSubtotal(),
+                    dv.getProducto().getEstadoProducto().getObservacion(),
+                    dv.getProducto().getPrecio()
+                ))
+                .collect(Collectors.toList());
+    
+            return new VentaDetalladaDTO(
+                v.getIdVenta(),
+                v.getFecha(),
+                v.getTotal(),
+                v.getEstadoVenta().getObservacion(),
+                v.getMetodoPago().getDescripcion(),
+                v.getUsuario().getNombre(),
+                productos
+            );
+        }).collect(Collectors.toList());
+    }
+
+
+
+
+
+
+
+
 
     // Crear una nueva venta
     public Venta createVenta(Venta venta) {

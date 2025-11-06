@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+
 import com.es.backendbuddyfinv.model.Usuario;
+
 import com.es.backendbuddyfinv.repository.UsuarioRepository;
 
 @Service
@@ -15,10 +18,16 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    public Usuario findByUsuario(String username) {
+        return usuarioRepository.findByUsuario(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+    }
+
     // Crear un nuevo usuario
     public Usuario createUsuario(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
+
 
     // Obtener todos los usuarios
     public List<Usuario> getAllUsuarios() {
@@ -55,4 +64,10 @@ public class UsuarioService {
     public boolean existsById(Long id) {
         return usuarioRepository.existsById(id);
     }
+
+    public boolean existsByUsuarioOrEmail(String usuario, String email) {
+        return usuarioRepository.existsByUsuarioOrEmail(usuario, email);
+    }
+    
+
 }

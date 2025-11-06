@@ -18,7 +18,7 @@ public class TipoProducto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_tipo_producto")
-    private int idTipoProducto;
+    private Long idTipoProducto;
 
     
     //propietario del negocio

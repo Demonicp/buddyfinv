@@ -2,6 +2,7 @@ package com.es.backendbuddyfinv.model;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -48,12 +49,12 @@ public class Usuario {
     @JoinColumn(name = "id_administrador")
     private Usuario administrador; // Solo si el usuario es EMPLEADO
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "propietario")
     private List<Egreso> egresos;
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "propietario")
     private List<Venta> ventas;
 
-    @OneToMany(mappedBy = "usuario")
+    @OneToMany(mappedBy = "propietario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingreso> ingresos;
 }

@@ -1,10 +1,8 @@
 package com.es.backendbuddyfinv.controller;
 
 import com.es.backendbuddyfinv.dto.UsuarioDTO;
-import com.es.backendbuddyfinv.model.Rol;
+
 import com.es.backendbuddyfinv.model.Usuario;
-import com.es.backendbuddyfinv.repository.RolRepository;
-import com.es.backendbuddyfinv.repository.UsuarioRepository;
 import com.es.backendbuddyfinv.service.impl.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,17 +15,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/usuarios")       
 public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private RolRepository rolRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -37,18 +29,11 @@ public class UsuarioController {
     public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
         try {
             // Validar que no exista el usuario
-            if (usuarioRepository.existsByUsuarioOrEmail(usuario.getUsuario(), usuario.getEmail())) {
+            if (usuarioService.existsByUsuarioOrEmail(usuario.getUsuario(), usuario.getEmail())) {
                 return ResponseEntity.badRequest().body("El usuario o email ya existe");
             }
 
-            // Validar que el rol exista
-            if (usuario.getRol() != null && usuario.getRol().getIdRol() > 0) {
-                Optional<Rol> rol = rolRepository.findById(usuario.getRol().getIdRol());
-                if (rol.isEmpty()) {
-                    return ResponseEntity.badRequest().body("El rol especificado no existe");
-                }
-                usuario.setRol(rol.get());
-            }
+            
 
             // Encriptar la contraseña
             usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
@@ -117,11 +102,7 @@ public class UsuarioController {
             }
             if (usuarioDetails.getNegocio() != null) usuario.setNegocio(usuarioDetails.getNegocio());
             
-            // Actualizar rol si se proporciona
-            if (usuarioDetails.getRol() != null && usuarioDetails.getRol().getIdRol() > 0) {
-                Optional<Rol> rol = rolRepository.findById(usuarioDetails.getRol().getIdRol());
-                rol.ifPresent(usuario::setRol);
-            }
+            
 
             Usuario usuarioActualizado = usuarioService.updateUsuario(id, usuario);
             return ResponseEntity.ok(usuarioActualizado);

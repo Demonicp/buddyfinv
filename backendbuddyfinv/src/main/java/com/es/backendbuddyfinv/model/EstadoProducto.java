@@ -16,7 +16,7 @@ public class EstadoProducto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_estado_pro")
-    private int idEstadoPro;
+    private Long idEstadoPro;
 
     @Column(name = "observacion")
     private String observacion;

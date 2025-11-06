@@ -15,7 +15,7 @@
       class="table-row"
       role="row"
     >
-      <span class="cell">{{ user.rol?.descripcion || 'Sin rol' }}</span>
+      <span class="cell">{{ user.rol.descripcion }}</span>
       <span class="cell">{{ user.nombre }}</span>
       <span class="cell">{{ user.email }}</span>
       <span class="cell">{{ user.usuario }}</span>
@@ -24,21 +24,12 @@
 </template>
 
 <script>
-import { UsuarioProvider } from '../providers/UsuarioProvider.js'
-
 export default {
-  name: 'UserTable',
-  data() {
-    return {
-      usuarios: []
-    }
-  },
-  async mounted() {
-    try {
-      const data = await UsuarioProvider.getAll()
-      this.usuarios = Array.isArray(data) ? data : []
-    } catch (error) {
-      console.error('Error al obtener usuarios:', error.message)
+  name: 'UsuarioTable',
+  props: {
+    usuarios: {
+      type: Array,
+      required: true
     }
   }
 }

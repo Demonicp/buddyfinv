@@ -19,7 +19,7 @@ public class Inventario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_inventario")
-    private int idInventario;
+    private Long idInventario;
 
     @Column(name = "cantidad_disponible", nullable = false)
     private int cantidadDisponible;

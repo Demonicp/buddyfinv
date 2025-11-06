@@ -1,9 +1,5 @@
 package com.es.backendbuddyfinv.dto;
 
-import com.es.backendbuddyfinv.model.EstadoProducto;
-import com.es.backendbuddyfinv.model.Inventario;
-import com.es.backendbuddyfinv.model.TipoProducto;
-import com.es.backendbuddyfinv.model.Usuario;
 
 
 import lombok.Data;

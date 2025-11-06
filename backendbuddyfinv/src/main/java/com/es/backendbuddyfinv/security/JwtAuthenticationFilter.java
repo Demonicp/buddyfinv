@@ -6,21 +6,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.es.backendbuddyfinv.service.impl.CustomUserDetailsService;
+
 import java.io.IOException;
-import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7); 
+        String token = authHeader.substring(7);
 
         if (!jwtUtil.isTokenValid(token)) {
             filterChain.doFilter(request, response);
@@ -44,17 +46,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String username = jwtUtil.extractUsername(token);
-        String rol = jwtUtil.extractRol(token);
 
+        // ✅ Carga el usuario completo desde la base de datos
+        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+
+        // ✅ Construye el token de autenticación con authorities y principal completo
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(
-                        username,
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + rol))
-                );
+            new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+            );
 
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        System.out.println("✅ Usuario autenticado: " + userDetails.getUsername() +
+                           " con rol: " + userDetails.getAuthorities() +
+                           " y ID: " + userDetails.getIdUsuario());
 
         filterChain.doFilter(request, response);
     }

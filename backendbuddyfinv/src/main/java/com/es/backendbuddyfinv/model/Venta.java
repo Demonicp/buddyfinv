@@ -1,10 +1,12 @@
 package com.es.backendbuddyfinv.model;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +27,7 @@ public class Venta {
     private Long idVenta;
 
     @Column(name = "fecha", nullable = false)
-    private LocalDate fecha;
+    private LocalDateTime fecha;
 
     @Column(name = "total", nullable = false)
     private double total;
@@ -43,8 +45,8 @@ public class Venta {
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
-    //propietario del negocio
-    @ManyToOne
+    //propietario del negocio osea un id de un usuario con rol de administrador
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_propietario")
     private Usuario propietario;
 
@@ -56,7 +58,7 @@ public class Venta {
     }
 
     // Constructor con parámetros
-    public Venta(LocalDate fecha, double total) {
+    public Venta(LocalDateTime fecha, double total) {
         this.fecha = fecha;
         this.total = total;
     }
