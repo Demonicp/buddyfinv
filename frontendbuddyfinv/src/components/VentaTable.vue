@@ -24,7 +24,7 @@
       <span class="cell">{{ venta.idVenta }}</span>
       <span class="cell">{{ new Date(venta.fecha).toLocaleString() }}</span>
       <span class="cell">${{ venta.total.toFixed(2) }}</span>
-      <span class="cell">{{ venta.usuario?.nombre || venta.usuario }}</span>
+      <span class="cell">{{ venta.empleado}}</span>
 
       <transition name="fade">
         <div
@@ -50,7 +50,7 @@
                 v-for="producto in venta.productos"
                 :key="producto.nombre"
               >
-                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.nombreProducto }}</td>
                 <td>{{ producto.cantidad }}</td>
                 <td>${{ producto.precioUnitario?.toFixed(2) || '—' }}</td>
                 <td>${{ producto.subtotal.toFixed(2) }}</td>
@@ -63,37 +63,24 @@
     </div>
   </div>
 </template>
-<script>
-import { VentaProvider } from '../providers/VentaProvider.js'
 
+<script setup>
+defineProps({
+  ventas: Array
+})
 
+import { ref } from 'vue'
+const ventaSeleccionada = ref(null)
 
-export default {
-  name: 'VentaTable',
-  data() {
-    return {
-      ventas: [],
-      ventaSeleccionada: null
-    }
-  },
-  async getDetalladasPorUsuario(idUsuario) {
-  const token = localStorage.getItem('token')
-  const res = await fetch(`${VENTAS_BASE}/detalladas/usuario/${idUsuario}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  })
-  const data = await handleResponse(res)
-  return Array.isArray(data) ? data.map(crearVentaDTO) : []
-},
+function toggleDetalle(id) {
+  ventaSeleccionada.value = ventaSeleccionada.value === id ? null : id
+}
 
-  methods: {
-    toggleDetalle(id) {
-      this.ventaSeleccionada = this.ventaSeleccionada === id ? null : id
-    }
-  }
+function mostrarAlerta(mensaje) {
+  alert(mensaje)
 }
 </script>
+
 
 <style scoped>
 .venta-table-container {

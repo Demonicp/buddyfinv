@@ -1,8 +1,8 @@
-// providers/ventaProvider.js
+
 import { crearVentaDTO } from '../models/VentaDTO.js'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
-const VENTAS_BASE = `${API_BASE_URL}/api/ventas`
+const VENTAS_BASE = `${API_BASE_URL}/ventas`
 
 async function handleResponse(response) {
   if (!response.ok) {
@@ -19,9 +19,11 @@ async function handleResponse(response) {
   return response.text()
 }
 
+
 export const VentaProvider = {
   async getDetalladas() {
-    const token = localStorage.getItem('token') // Asegúrate de que el token esté guardado correctamente
+    const token = localStorage.getItem('token')
+    if (!token) throw new Error('Token no disponible')
 
     const res = await fetch(`${VENTAS_BASE}/detalladas`, {
       method: 'GET',
@@ -31,7 +33,7 @@ export const VentaProvider = {
       }
     })
 
-    const data = await handleResponse(res)
-    return Array.isArray(data) ? data.map(crearVentaDTO) : []
+    if (!res.ok) throw new Error('Error al obtener ventas')
+    return await res.json()
   }
 }

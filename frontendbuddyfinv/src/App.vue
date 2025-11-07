@@ -1,15 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-
-import { useUsuarioStore } from './stores/usuarioStore'
-
-const usuarioStore = useUsuarioStore()
-const token = localStorage.getItem('token')
-if (token) {
-  usuarioStore.establecerRolDesdeToken(token)
-}
-
 </script>
 
 <template>

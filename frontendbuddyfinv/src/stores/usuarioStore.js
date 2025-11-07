@@ -11,7 +11,7 @@ export const useUsuarioStore = defineStore('usuario', {
         const payloadBase64 = token.split('.')[1]
         const payload = JSON.parse(atob(payloadBase64))
         this.rol = payload.rol || null
-        this.id = payload.id || null
+        this.id = payload.idUsuario || null
       } catch (error) {
         console.error('Error al decodificar el token:', error)
         this.rol = null
