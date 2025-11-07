@@ -1,62 +1,65 @@
 <template>
-    <div class="layout">
-      <aside class="sidebar">
-        <h2 class="logo">BUDDYFINV</h2>
-        <nav>
-          <button
-            v-if="rolUsuario === 'ADMIN'"
-            @click="ir('dashboard')"
-            :class="{ activo: ruta === 'dashboard' }"
-          >
-            Dashboard
-          </button>
-          <button @click="ir('acciones')" :class="{ activo: ruta === 'acciones' }">Acciones</button>
-          <button @click="ir('inventario')" :class="{ activo: ruta === 'inventario' }">Inventario</button>
-          <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">Gráficas</button>
-          <button @click="ir('configuracion')" :class="{ activo: ruta === 'configuracion' }">Configuración</button>
-        </nav>
-        <button class="cerrar-sesion" @click="cerrarSesion">Cerrar sesión</button>
-      </aside>
-  
-      <main class="contenido">
-        <RouterView />
-      </main>
-    </div>
-  </template>
-  
-  <script>
-    import { jwtDecode } from 'jwt-decode'
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="logo">BUDDYFINV</h2>
+      <nav>
+        <button
+          v-if="rolUsuario === 'ADMIN'"
+          @click="ir('dashboard')"
+          :class="{ activo: ruta === 'dashboard' }"
+        >
+          Dashboard
+        </button>
+        <button @click="ir('acciones')" :class="{ activo: ruta === 'acciones' }">Acciones</button>
+        <button @click="ir('inventario')" :class="{ activo: ruta === 'inventario' }">Inventario</button>
+        <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">Gráficas</button>
+        <button @click="ir('configuracion')" :class="{ activo: ruta === 'configuracion' }">Configuración</button>
+      </nav>
+      <button class="cerrar-sesion" @click="cerrarSesion">Cerrar sesión</button>
+    </aside>
 
-    export default {
-      data() {
-        return {
-          ruta: this.$route.name,
-          rolUsuario: ''
-        };
-      },
-      mounted() {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const decoded = jwtDecode(token);
-          this.rolUsuario = decoded.rol || decoded.authorities?.[0] || '';
-        }
-      },
-      watch: {
-        '$route.name'(nueva) {
-          this.ruta = nueva;
-        }
-      },
-      methods: {
-        ir(nombreRuta) {
-          this.$router.push({ name: nombreRuta });
-        },
-        cerrarSesion() {
-          this.$router.push({ name: 'Login' });
-        }
+    <main class="contenido">
+      <RouterView />
+    </main>
+  </div>
+</template>
+
+<script>
+import { jwtDecode } from 'jwt-decode'
+
+export default {
+  data() {
+    return {
+      ruta: this.$route.name,
+      rolUsuario: ''
+    }
+  },
+  mounted() {
+    const token = localStorage.getItem('token')
+    if (token) {
+      const decoded = jwtDecode(token)
+      this.rolUsuario = decoded.rol || decoded.authorities?.[0] || ''
+    }
+  },
+  watch: {
+    '$route.name'(nueva) {
+      this.ruta = nueva
+    }
+  },
+  methods: {
+    ir(nombreRuta) {
+      if (nombreRuta === 'dashboard') {
+        this.$router.push('/dashboard/dashboard') // ✅ redirección correcta
+      } else {
+        this.$router.push({ name: nombreRuta })
       }
-    };
-
-  </script>
+    },
+    cerrarSesion() {
+      this.$router.push({ name: 'Login' })
+    }
+  }
+}
+</script>
   
   <style scoped>
   .layout {
