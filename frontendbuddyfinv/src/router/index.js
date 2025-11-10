@@ -4,8 +4,12 @@ import DashboardOpciones from '@/views/DashboardOpciones.vue'
 import IngresoTable from '../components/IngresoTable.vue'
 import ProductoView from '../views/ProductoView.vue'
 import VentaView from '../views/VentaView.vue'
+
 //import TestProducto from '../views/TestProducto.vue'
 
+import LoginView from '@/views/LoginView.vue'
+import EgresosTable from '@/components/EgresosTable.vue'
+import EgresoView from '@/views/EgresoView.vue'
 
 const routes = [
   {
@@ -20,16 +24,16 @@ const routes = [
   {
     path: '/dashboard',
     component: DashboardLayout,
+    redirect: '/dashboard/dashboard',
     children: [
       {
         path: 'dashboard',
-        component: DashboardOpciones,
-        children: [
-          { path: 'ventas', name: 'Ventas', component: VentaView },
-          { path: 'ingresos', name: 'Ingresos', component: IngresoTable },
-          // puedes agregar egresos aquí también
-        ]
+        name: 'dashboard',
+        component: DashboardOpciones
       },
+      { path: 'ventas', name: 'Ventas', component: VentaView },
+      { path: 'ingresos', name: 'Ingresos', component: IngresoTable },
+      { path: 'egresos', name: 'Egresos', component: EgresoView },
       { path: 'inventario', name: 'inventario', component: ProductoView }
     ]
   }

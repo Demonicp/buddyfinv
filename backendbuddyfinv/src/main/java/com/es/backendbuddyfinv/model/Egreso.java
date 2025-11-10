@@ -1,5 +1,7 @@
 package com.es.backendbuddyfinv.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -13,6 +15,9 @@ import lombok.Data;
 @Entity
 @Table(name = "egresos")
 @Data
+
+
+
 public class Egreso {
 
     @Id
@@ -21,10 +26,13 @@ public class Egreso {
     private Long idEgreso;
 
     @Column(name = "costo", nullable = false)
-    private double costo;
+    private Double costo;
 
     @Column(name = "observacion")
     private String observacion;
+
+    @Column(name = "fecha")
+    private LocalDate fecha;
 
     // Relaciones
     @ManyToOne
@@ -35,13 +43,10 @@ public class Egreso {
     @JoinColumn(name = "id_metodo_pago", nullable = false)
     private MetodoPago metodoPago;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private Usuario usuario;
 
     //propietario del negocio
     @ManyToOne
-    @JoinColumn(name = "id_propietario")
+    @JoinColumn(name = "id_propietario",nullable=false)
     private Usuario propietario;
 
     // Constructor por defecto
@@ -49,9 +54,23 @@ public class Egreso {
     }
 
     // Constructor con parámetros
-    public Egreso(double costo, String observacion) {
+    public Egreso(double costo, String observacion,TipoEgreso tipoEgreso,MetodoPago metodoPago,Usuario propietario) {
         this.costo = costo;
         this.observacion = observacion;
+        this.tipoEgreso = tipoEgreso;
+        this.metodoPago = metodoPago;
+        this.propietario = propietario;
+        this.fecha = LocalDate.now(); // Asignar fecha actual por defecto
+    }
+    
+    // Constructor con fecha explícita
+    public Egreso(double costo, String observacion, LocalDate fecha, TipoEgreso tipoEgreso, MetodoPago metodoPago, Usuario propietario) {
+        this.costo = costo;
+        this.observacion = observacion;
+        this.fecha = fecha;
+        this.tipoEgreso = tipoEgreso;
+        this.metodoPago = metodoPago;
+        this.propietario = propietario;
     }
 
 }

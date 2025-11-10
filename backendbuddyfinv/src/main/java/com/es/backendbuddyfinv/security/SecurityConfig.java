@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .requestMatchers("/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/productos/**").authenticated() 
                 .requestMatchers("/ventas/**").hasRole("ADMIN")
-                .requestMatchers("/egresos/**").authenticated()
+                .requestMatchers("/Egresos/**").authenticated()
                 .requestMatchers("/ingresos/**").permitAll()
             ).addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class)
 
@@ -90,7 +90,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
             CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedOrigins(List.of("http://localhost:5174", "http://127.0.0.1:5173","http://localhost:3000"));
+            configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://127.0.0.1:5173","http://localhost:3000"));
             configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             configuration.setAllowedHeaders(List.of("*"));
             configuration.setAllowCredentials(true);

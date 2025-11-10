@@ -2,15 +2,18 @@ package com.es.backendbuddyfinv.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.es.backendbuddyfinv.dto.EgresoDTO;
 import com.es.backendbuddyfinv.model.Egreso;
 import com.es.backendbuddyfinv.repository.EgresoRepository;
 
 @Service
 public class EgresoService {
+
 
     @Autowired
     private EgresoRepository egresoRepository;
@@ -55,4 +58,27 @@ public class EgresoService {
     public boolean existsById(Long id) {
         return egresoRepository.existsById(id);
     }
+
+
+    
+    public List<Egreso> ListarEgresosXusuario(Long idPropietario){
+        return egresoRepository.findByPropietario(idPropietario);
+
+    }
+
+    public double costoTotalEgresosXusuario(Long idPropietario){
+
+        return egresoRepository.sumEgresosByPropietarioId(idPropietario);
+
+
+    }
+
+    public List<EgresoDTO> listarDTOsPorUsuario(Long idPropietario) {
+        List<Egreso> egresos = egresoRepository.findByPropietario(idPropietario);
+        return egresos.stream()
+                      .map(EgresoDTO::new)
+                      .collect(Collectors.toList());
+    }
+
+
 }

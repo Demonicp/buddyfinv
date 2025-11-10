@@ -36,6 +36,6 @@ public class ProductoDTO {
         this.tipoProducto = producto.getTipoProducto().getObservacion();
         this.estadoProducto = producto.getEstadoProducto().getObservacion();
         this.propietario = producto.getPropietario().getNombre();
-        this.cantidadDisponible = cantidadDisponible != null ? cantidadDisponible : 0;
+        this.cantidadDisponible = cantidadDisponible != null ? cantidadDisponible : producto.getInventario().getCantidadDisponible();
     }
 }

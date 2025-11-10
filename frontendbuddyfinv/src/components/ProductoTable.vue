@@ -21,7 +21,7 @@
           <td>{{ producto.precio }}</td>
           <td>{{ producto.tipoProducto }}</td>
           <td>{{ producto.propietario }}</td>
-          <td>{{ producto.cantidadDisponible }}</td>
+          <td>{{ producto.cantidadDisponible ?? 0 }}</td>
         </tr>
       </tbody>
     </table>
@@ -76,20 +76,20 @@ const productosOrdenados = computed(() => {
 }
 
 .inventario h2 {
-  color: #d354009a; 
+  color: #e6dfda9a; 
   margin-bottom: 1.5rem;
 }
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
-  background-color:#fff3d4;
-  color: #c2a252;
+  background-color: white;
+  color: #100f0d;
   font-family: Arial, sans-serif;
 }
 
 th {
-  background-color: #ffa94d; 
+  background-color: #e89236; 
   color: white;
   cursor: pointer;
   padding: 10px;
@@ -102,7 +102,7 @@ td {
 }
 
 tr:nth-child(even) {
-  background-color: #fff3e0; /* fila alterna */
+  background-color: #f5f5f5; /* fila alterna */
 }
 
 th:hover {

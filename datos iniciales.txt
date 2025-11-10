@@ -5,7 +5,7 @@ INSERT INTO roles (id_rol, descripcion) VALUES
 
 -- Usuarios
 INSERT INTO usuarios (id, nit_usuario, nombre, email, usuario, password, negocio, id_rol, id_administrador) VALUES
-(1, '900000001', 'Admin Central', 'admin@negocio.com', 'admin', 'admin123', 'Negocio Central', 1, NULL),
+(1, '900000001', 'Admin Central', 'admin@negocio.com', 'administrador', 'Admin123#', 'Negocio Central', 1, NULL),
 (2, '900000002', 'Empleado Uno', 'empleado1@negocio.com', 'empleado1', 'pass1', 'Negocio Central', 2, 1),
 (3, '900000003', 'Empleado Dos', 'empleado2@negocio.com', 'empleado2', 'pass2', 'Negocio Central', 2, 1),
 (4, '900000004', 'Empleado Tres', 'empleado3@negocio.com', 'empleado3', 'pass3', 'Negocio Central', 2, 1),
@@ -87,3 +87,30 @@ INSERT INTO detalle_ventas (id_venta, id_producto, precio_unitario, cantidad, su
 (8, 10, 6100, 5, 30500),
 (9, 1, 5500, 4, 22000),
 (10, 2, 6500, 4, 26000);
+-- ==============================
+-- TIPOS DE EGRESO
+-- ==============================
+INSERT INTO tipo_egresos (id_tipo_egreso, descripcion) VALUES
+(1, 'Pago de servicios públicos'),
+(2, 'Compra de insumos'),
+(3, 'Pago de nómina'),
+(4, 'Mantenimiento de equipos'),
+(5, 'Publicidad y marketing'),
+(6, 'Transporte'),
+(7, 'Gastos administrativos'),
+(8, 'Seguridad y vigilancia'),
+(9, 'Otros');
+
+-- ==============================
+-- EGRESOS (Relacionados con el propietario id = 1)
+-- ==============================
+INSERT INTO egresos (id_egreso, costo, observacion, fecha, id_tipo_egreso, id_metodo_pago, id_propietario) VALUES
+(1, 120000, 'Pago de energía eléctrica', '2025-11-01', 1, 1, 1),
+(2, 85000, 'Compra de café y azúcar', '2025-11-02', 2, 2, 1),
+(3, 300000, 'Pago de salario a empleado 2', '2025-11-02', 3, 3, 1),
+(4, 45000, 'Reparación de licuadora', '2025-11-03', 4, 1, 1),
+(5, 60000, 'Publicidad en redes sociales', '2025-11-03', 5, 2, 1),
+(6, 25000, 'Transporte de insumos', '2025-11-04', 6, 3, 1),
+(7, 40000, 'Compra de papelería', '2025-11-05', 7, 1, 1),
+(8, 90000, 'Pago empresa de vigilancia', '2025-11-05', 8, 2, 1),
+(9, 35000, 'Gasto menor varios', '2025-11-06', 9, 1, 1);
