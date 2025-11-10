@@ -87,8 +87,8 @@ export default {
 .title {
   text-align: center;
   color: #009688;
-  margin-bottom: 20px;
-  font-size: 22px;
+  margin-bottom: 1px;
+  font-size: 1px;
   font-weight: bold;
 }
 
