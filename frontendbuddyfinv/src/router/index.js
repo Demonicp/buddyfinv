@@ -24,17 +24,16 @@ const routes = [
   {
     path: '/dashboard',
     component: DashboardLayout,
+    redirect: '/dashboard/dashboard',
     children: [
       {
         path: 'dashboard',
-        component: DashboardOpciones,
-        children: [
-          { path: 'ventas', name: 'Ventas', component: VentaView },
-          { path: 'ingresos', name: 'Ingresos', component: IngresoTable },
-          { path: 'egresos', name: 'Egresos', component: EgresoView }
-          // puedes agregar egresos aquí también
-        ]
+        name: 'dashboard',
+        component: DashboardOpciones
       },
+      { path: 'ventas', name: 'Ventas', component: VentaView },
+      { path: 'ingresos', name: 'Ingresos', component: IngresoTable },
+      { path: 'egresos', name: 'Egresos', component: EgresoView },
       { path: 'inventario', name: 'inventario', component: ProductoView }
     ]
   }

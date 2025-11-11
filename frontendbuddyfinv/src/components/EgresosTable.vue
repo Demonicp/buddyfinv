@@ -7,12 +7,14 @@
         <div class="egreso-table-container">
             <div class="table-header-section">
                 <h2 class="title">Lista De Egresos</h2>
-                <button class="btn-consultar" @click="consultarEgreso">
-                    Consultar egreso 
-                </button>
-                <button class="btn-Registrar" @click="RegistrarEgreso">
-                    Registrar egreso
-                </button>
+                <div class="buttons-container">
+                    <button class="btn-Registrar" @click="RegistrarEgreso">
+                        Registrar egreso
+                    </button>
+                    <button class="btn-consultar" @click="consultarEgreso">
+                        Consultar egreso 
+                    </button>
+                </div>
             </div>
             
             <div class="table-header" role="row">
@@ -34,7 +36,7 @@
                 
                 <span class="cell">{{ egreso.observacion || 'N/A' }}</span>
                
-                <span class="cell">{{ egreso.descripcionTegreso || 'N/A' }}</span>
+                <span class="cell">{{ egreso.descripcionTipoEgreso || 'N/A' }}</span>
                 
                 <span class="cell">{{ formatoMoneda(egreso.costo) }}</span>
                 
@@ -141,7 +143,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'Futura', 'Garamond', avenir;
+ 
 }
 
 
@@ -161,7 +164,7 @@ export default {
 
 
 .total-label {
-  font-size: 1.2rem; 
+  font-size: 1.5rem; 
   font-weight: 600; 
   color: white; 
 }
@@ -180,9 +183,12 @@ export default {
   width: 100%; 
   margin-top: 20px; 
   background: #f9f9f9; 
+  font-size: 1.5rem;
   border-radius: 10px; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   padding: 20px; 
+  font-family: 'Futura', 'Garamond', avenir;
+  
 }
 
 
@@ -192,14 +198,16 @@ export default {
   align-items: center;
   margin-bottom: 15px;
   position: relative;
+  
 }
 
 .title {
   text-align: left;
   margin: 0;
+  text-shadow: 5px 5px 18px;
   color: #333;
-  font-size: 1.5rem;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 2rem;
+  font-family: 'Futura', 'Garamond', avenir;
   font-weight: bold;
   letter-spacing: 1px;
 }
@@ -208,11 +216,11 @@ export default {
 .btn-consultar {
   background-color: #1380f4;
   color: white;
-  border: none;
+  border: none beige;
   padding: 20px 20px;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 800;
   font-size: 0.9rem;
   transition: background-color 0.3s ease;
   font-family: 'Share Tech Mono', 'Courier New', monospace;
@@ -226,19 +234,32 @@ export default {
 .btn-consultar:active {
   transform: scale(0.98);
 }
+.buttons-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .btn-Registrar{
   background-color: #237cdb;
   color: white;
-  border: none;
+  border:  rgba(255, 255, 255, 0.873);
   padding: 20px 20px;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
   transition: background-color 0.3s ease;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'Futura', 'Garamond', avenir;
   letter-spacing: 1px;
+}
 
+.btn-Registrar:hover {
+  background-color: #1a5fa8;
+}
+
+.btn-Registrar:active {
+  transform: scale(0.98);
 }
 
 .table-footer {
@@ -247,21 +268,22 @@ export default {
   align-items: center;
   margin-top: 20px;
   padding-top: 15px;
-  border-top: 1px solid #ddd;
+  border-top: 1px inset #2b2b2b;
 }
 
 .btn-limpiar {
   background-color: #6c757d;
   color: white;
-  border: none;
+  border: none beige; 
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 30px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
   transition: background-color 0.3s ease;
   font-family: 'Share Tech Mono', 'Courier New', monospace;
   letter-spacing: 1px;
+  
 }
 
 .btn-limpiar:hover {
@@ -278,7 +300,7 @@ export default {
   grid-template-columns: repeat(5, 1fr);
   padding: 10px;
   text-align: center;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'Futura', 'Garamond', avenir;
   font-weight: bold;
   letter-spacing: 0.5px;
 }
