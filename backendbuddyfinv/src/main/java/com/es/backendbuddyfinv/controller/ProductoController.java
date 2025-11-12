@@ -1,7 +1,7 @@
 package com.es.backendbuddyfinv.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 //import org.springframework.security.core.Authentication;
@@ -24,7 +24,7 @@ import com.es.backendbuddyfinv.dto.ProductoDTO;
 import com.es.backendbuddyfinv.model.Producto;
 
 
-
+@CrossOrigin(origins="http://localhost:5173")
 //para aceptar las peticiones desde el frontend
 @RestController
 @RequestMapping("/productos")

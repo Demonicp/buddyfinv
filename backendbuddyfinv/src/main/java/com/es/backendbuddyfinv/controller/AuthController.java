@@ -5,12 +5,10 @@ import com.es.backendbuddyfinv.dto.AuthResponse;
 
 import com.es.backendbuddyfinv.service.impl.AuthService;
 
-import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 
 @RestController
 @RequestMapping("/auth")
@@ -47,20 +45,4 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Esrror interno del servidor");
         }
     }
-
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            authService.revocarToken(token);
-        }
-
-        return ResponseEntity.ok("Sesión cerrada correctamente");
-    }
-      
-   
-    
-    
 }
