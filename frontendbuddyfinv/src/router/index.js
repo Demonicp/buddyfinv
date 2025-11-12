@@ -4,7 +4,9 @@ import DashboardOpciones from '@/views/DashboardOpciones.vue'
 import IngresoTable from '../components/IngresoTable.vue'
 import ProductoView from '../views/ProductoView.vue'
 import VentaView from '../views/VentaView.vue'
-
+import AgregarProductoView from '../views/AgregarProductoView.vue'
+import ModificarProductoView from '../views/ModificarProductoView.vue'
+import ReabastecerProductoView from '../views/ReabastecerProductoView.vue'
 //import TestProducto from '../views/TestProducto.vue'
 
 import LoginView from '@/views/LoginView.vue'
@@ -35,7 +37,13 @@ const routes = [
           // puedes agregar egresos aquí también
         ]
       },
-      { path: 'inventario', name: 'inventario', component: ProductoView }
+      { path: 'inventario', name: 'inventario', component: ProductoView ,
+        children: [
+          {path: 'agregarproducto', name: 'AgregarProducto', component: AgregarProductoView},
+          {path: 'modificarproducto', name: 'ModificarProducto', component: ModificarProductoView},
+          {path: 'reabastecerproducto', name: 'ReabastecerProducto', component: ReabastecerProductoView}
+        ] 
+      }
     ]
   }
 ]

@@ -4,24 +4,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-//import org.springframework.security.core.Authentication;
-
-
-//import com.es.backendbuddyfinv.repository.ProductoRepository;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import com.es.backendbuddyfinv.repository.InventarioRepository;
 import com.es.backendbuddyfinv.service.impl.ProductoService;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.List;
 import java.util.stream.Collectors;
-
 import com.es.backendbuddyfinv.dto.ProductoDTO;
-//import com.es.backendbuddyfinv.dto.UsuarioDTO;
 import com.es.backendbuddyfinv.model.Producto;
+import java.util.List;
+
+//import org.springframework.security.core.context.SecurityContextHolder;
+//import org.springframework.security.core.Authentication;
+//import com.es.backendbuddyfinv.repository.ProductoRepository;
+//import com.es.backendbuddyfinv.dto.UsuarioDTO;
 
 
 @CrossOrigin(origins="http://localhost:5173")
@@ -83,6 +81,17 @@ public class ProductoController {
             .collect(Collectors.toList());
         return ResponseEntity.ok(productosDTO);
     }
+
+    @PostMapping("/agregar")
+    public ResponseEntity<String> agregarProducto(@RequestBody Producto producto) {
+    try {
+        productoService.createProducto(producto);
+        return ResponseEntity.ok("Producto agregado correctamente");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error al agregar producto");
+    }
+}
 
     /** 
     @GetMapping("/mine")

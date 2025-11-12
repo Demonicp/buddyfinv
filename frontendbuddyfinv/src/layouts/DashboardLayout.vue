@@ -12,6 +12,20 @@
         </button>
         <button @click="ir('acciones')" :class="{ activo: ruta === 'acciones' }">Acciones</button>
         <button @click="ir('inventario')" :class="{ activo: ruta === 'inventario' }">Inventario</button>
+       
+        <!--<div class="menu-grupo">
+          <button @click="mostrarSubmenu = !mostrarSubmenu" :class="{ activo: ruta.startsWith('inventario') }">
+            Inventario
+          </button>
+
+          <div v-if="mostrarSubmenu" class="submenu">
+            <button @click="ir('inventario')">Ver inventario</button>
+            <button @click="ir('agregarProducto')">Añadir producto</button>
+            <button @click="ir('modificarProducto')">Modificar producto</button>
+            <button @click="ir('reabastecerProducto')">Reabastecer producto</button>
+          </div>
+        </div>-->
+
         <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">Gráficas</button>
         <button @click="ir('configuracion')" :class="{ activo: ruta === 'configuracion' }">Configuración</button>
       </nav>
@@ -31,7 +45,8 @@ export default {
   data() {
     return {
       ruta: this.$route.name,
-      rolUsuario: ''
+      rolUsuario: '',
+     
     }
   },
   mounted() {
