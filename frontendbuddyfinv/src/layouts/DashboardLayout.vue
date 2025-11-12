@@ -11,14 +11,17 @@
           <IconDashboard />
           <span>DASHBOARD</span>
         </button>
+
         <button @click="ir('acciones')" :class="{ activo: ruta === 'acciones' }">
           <IconAcciones />
           <span>ACCIONES</span>
         </button>
-        <button @click="ir('inventario')" :class="{ activo: ruta === 'inventario' }">
+
+        <button @click="ir('dashboardInv')" :class="{ activo: ruta === 'dashboardInv' }">
           <IconInventario />
           <span>INVENTARIO</span>
         </button>
+
         <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">
           <IconGraficas />
           <span>GRAFICAS</span>
