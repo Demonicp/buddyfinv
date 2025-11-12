@@ -11,17 +11,14 @@
           <IconDashboard />
           <span>DASHBOARD</span>
         </button>
-
         <button @click="ir('acciones')" :class="{ activo: ruta === 'acciones' }">
           <IconAcciones />
           <span>ACCIONES</span>
         </button>
-
-        <button @click="ir('dashboardInv')" :class="{ activo: ruta === 'dashboardInv' }">
+        <button @click="ir('inventario')" :class="{ activo: ruta === 'inventario' }">
           <IconInventario />
           <span>INVENTARIO</span>
         </button>
-
         <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">
           <IconGraficas />
           <span>GRAFICAS</span>
@@ -34,7 +31,7 @@
       </nav>
       <button class="cerrar-sesion" @click="cerrarSesion">
         <IconCerrarSesion />
-        <span>CERRAR SESION</span>
+        <span>CERRAR SESIÓN</span>
       </button>
     </aside>
 
@@ -61,6 +58,7 @@ import IconInventario from '../components/icons/IconInventario.vue'
 import IconGraficas from '../components/icons/IconGraficas.vue'
 import IconConfiguracion from '../components/icons/IconConfiguracion.vue'
 import IconCerrarSesion from '../components/icons/IconCerrarSesion.vue'
+import { useUsuarioStore } from '@/stores/usuarioStore'
 
 export default {
   components: {
@@ -81,11 +79,21 @@ export default {
   },
   mounted() {
     const token = localStorage.getItem('token')
-    if (token) {
+    if (!token) {
+      this.$router.push('/login')
+      return
+    }
+
+    try {
       const decoded = jwtDecode(token)
       this.rolUsuario = decoded.rol || decoded.authorities?.[0] || ''
       this.username = decoded.sub || 'USUARIO'
+    } catch (error) {
+      console.error('Token inválido:', error)
+      this.$router.push('/login')
+      return
     }
+
     this.actualizarFechaHora()
     this._intervaloFecha = setInterval(this.actualizarFechaHora, 60000)
   },
@@ -94,7 +102,6 @@ export default {
       this.ruta = nueva
     },
     '$route.path'(nueva) {
-      // Detectar si estamos en dashboard
       if (nueva === '/dashboard/dashboard') {
         this.ruta = 'dashboard'
       }
@@ -121,7 +128,14 @@ export default {
       }
     },
     cerrarSesion() {
-      this.$router.push({ name: 'Login' })
+      const usuarioStore = useUsuarioStore()
+      usuarioStore.cerrarSesion()
+      this.$router.push('/login')
+    }
+  },
+  beforeUnmount() {
+    if (this._intervaloFecha) {
+      clearInterval(this._intervaloFecha)
     }
   },
   beforeUnmount() {
