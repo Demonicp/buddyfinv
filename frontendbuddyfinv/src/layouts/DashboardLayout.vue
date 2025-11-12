@@ -137,6 +137,11 @@ export default {
     if (this._intervaloFecha) {
       clearInterval(this._intervaloFecha)
     }
+  },
+  beforeUnmount() {
+    if (this._intervaloFecha) {
+      clearInterval(this._intervaloFecha)
+    }
   }
 }
 </script>
