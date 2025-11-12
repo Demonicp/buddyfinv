@@ -143,7 +143,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'Futura', 'Garamond', avenir;
+ 
 }
 
 
@@ -163,7 +164,7 @@ export default {
 
 
 .total-label {
-  font-size: 1.2rem; 
+  font-size: 1.5rem; 
   font-weight: 600; 
   color: white; 
 }
@@ -182,10 +183,12 @@ export default {
   width: 100%; 
   margin-top: 20px; 
   background: #f9f9f9; 
-  font-size: 1rem;
+  font-size: 1.5rem;
   border-radius: 10px; 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   padding: 20px; 
+  font-family: 'Futura', 'Garamond', avenir;
+  
 }
 
 
@@ -195,15 +198,16 @@ export default {
   align-items: center;
   margin-bottom: 15px;
   position: relative;
+  
 }
 
 .title {
   text-align: left;
   margin: 0;
-  text-shadow: 5px 5px 10px;
+  text-shadow: 5px 5px 18px;
   color: #333;
-  font-size: 1.5rem;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 2rem;
+  font-family: 'Futura', 'Garamond', avenir;
   font-weight: bold;
   letter-spacing: 1px;
 }
@@ -246,7 +250,7 @@ export default {
   font-weight: 600;
   font-size: 0.9rem;
   transition: background-color 0.3s ease;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'Futura', 'Garamond', avenir;
   letter-spacing: 1px;
 }
 
@@ -296,7 +300,7 @@ export default {
   grid-template-columns: repeat(5, 1fr);
   padding: 10px;
   text-align: center;
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-family: 'Futura', 'Garamond', avenir;
   font-weight: bold;
   letter-spacing: 0.5px;
 }

@@ -81,14 +81,14 @@ export default {
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", sans-serif;
+  font-family: 'Futura', 'Garamond', avenir;
 }
 
 .title {
   text-align: center;
   color: #009688;
-  margin-bottom: 1px;
-  font-size: 1px;
+  margin-bottom: 2px;
+  font-size: 2px;
   font-weight: bold;
 }
 

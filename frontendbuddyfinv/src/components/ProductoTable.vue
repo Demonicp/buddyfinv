@@ -85,7 +85,7 @@ table {
   margin-top: 15px;
   background-color: white;
   color: #100f0d;
-  font-family: Arial, sans-serif;
+  font-family: 'Futura', 'Garamond', avenir;
 }
 
 th {
