@@ -51,7 +51,7 @@
       <p v-if="mensajeError" class="error-text">{{ mensajeError }}</p>
 
       <div class="links">
-        <a href="#">Registrar negocio</a> |
+        <router-link to="/registro">Registrar negocio</router-link>
         <a href="#">Recuperar usuario</a> |
         <a href="#">Recuperar contraseña</a>
       </div>
