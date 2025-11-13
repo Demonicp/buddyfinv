@@ -1,5 +1,7 @@
 package com.es.backendbuddyfinv.service.impl;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -59,8 +61,31 @@ public class EgresoService {
         return egresoRepository.existsById(id);
     }
 
+    public List<EgresoDTO> filtrarPorFechas(Long idUsuario, String fechaInicio, String fechaFin) {
+        try {
+            LocalDate inicio = LocalDate.parse(fechaInicio);
+            LocalDate fin = LocalDate.parse(fechaFin).plusDays(1);
+            List<Egreso> egresos = egresoRepository.filtrarPorFechas(idUsuario, inicio, fin);
+            System.out.println("🧪 Rango final aplicado: " + inicio + " hasta " + fin);
 
+
+        return egresos.stream()
+                      .map(EgresoDTO::new)
+                      .collect(Collectors.toList());
+        } catch (DateTimeParseException e) {
+            System.err.println("❌ Error al convertir fechas: " + e.getMessage());
+            return List.of(); // Devuelve lista vacía si hay error
+        }
+    }
     
+    public List<EgresoDTO> filtrarPorCosto(Long idUsuario, Long costo){
+        List<Egreso> egresos = egresoRepository.filtrarByCosto(idUsuario, costo);
+        return egresos.stream().map(EgresoDTO::new).collect(Collectors.toList());
+
+
+    }
+    
+
     public List<Egreso> ListarEgresosXusuario(Long idPropietario){
         return egresoRepository.findByPropietario(idPropietario);
 
