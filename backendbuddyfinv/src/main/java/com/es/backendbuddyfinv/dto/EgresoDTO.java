@@ -1,12 +1,18 @@
 package com.es.backendbuddyfinv.dto;
 
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class EgresoDTO {
     private Long id;
     private Double costo;
+    
+    @Size(max = 300, message = "Las observaciones no pueden superar los 300 caracteres")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s.,áéíóúÁÉÍÓÚñÑ-]*$", message = "Las observaciones solo pueden contener caracteres alfanuméricos")
     private String observacion;
+    
     private String fecha;
     private Long idMetodoPago;
     private String descripcionMetodoPago;

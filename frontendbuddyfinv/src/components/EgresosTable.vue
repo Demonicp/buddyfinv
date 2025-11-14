@@ -91,6 +91,7 @@
           <input 
             v-model="nuevoEgreso.observacion" 
             type="text" 
+            maxlength="300"
             placeholder="Ej: Compra de materiales"
             class="form-input"
           />
@@ -114,6 +115,7 @@
           <input 
             v-model.number="nuevoEgreso.costo" 
             type="number" 
+            step="0.01"
             min="0" 
             placeholder="Ej: 25000"
             class="form-input"
