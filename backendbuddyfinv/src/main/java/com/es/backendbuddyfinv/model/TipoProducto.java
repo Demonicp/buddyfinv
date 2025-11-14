@@ -1,5 +1,6 @@
 package com.es.backendbuddyfinv.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +25,7 @@ public class TipoProducto {
     //propietario del negocio
     @ManyToOne
     @JoinColumn(name = "id_propietario")
+    @JsonIgnore // Opcional: oculta el propietario si no lo necesitás en el frontend
     private Usuario propietario;
 
     @Column(name = "observacion")

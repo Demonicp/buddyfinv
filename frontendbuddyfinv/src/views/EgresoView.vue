@@ -1,6 +1,5 @@
 <template>
     <div class="egresos-view">
-      <h1>Gestión de Egresos</h1>
       <EgresoTable />
     </div>
   </template>
@@ -16,8 +15,3 @@
   }
   </script>
   
-  <style scoped>
-  .egresos-view {
-    padding: 20px;
-  }
-  </style>

@@ -6,6 +6,7 @@ import lombok.Data;
 @Entity
 @Table(name = "detalle_ingreso")
 @Data
+
 public class DetalleIngreso {
 
     @Id
