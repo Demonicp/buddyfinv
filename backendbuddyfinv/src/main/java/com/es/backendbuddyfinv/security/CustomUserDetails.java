@@ -1,9 +1,9 @@
 package com.es.backendbuddyfinv.security;
 
+import java.util.List;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-
-import java.util.List;
 
 
 public class CustomUserDetails extends User {
@@ -22,4 +22,5 @@ public class CustomUserDetails extends User {
     public Long getIdUsuario() {
         return idUsuario;
     }
+    
 }

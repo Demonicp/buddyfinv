@@ -88,7 +88,7 @@ export default {
   text-align: center;
   color: #009688;
   margin-bottom: 2px;
-  font-size: 2px;
+  font-size: 4px;
   font-weight: bold;
 }
 
