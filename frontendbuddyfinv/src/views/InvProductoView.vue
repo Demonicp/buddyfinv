@@ -3,6 +3,8 @@
     <h2>Inventario de productos</h2>
     <ProductoTable />
   </div>
+      <!-- Este RouterView mostrará las subrutas (como AgregarProducto) -->
+  <RouterView />
 </template>
 
 <script>

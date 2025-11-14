@@ -3,6 +3,8 @@ package com.es.backendbuddyfinv.dto;
 
 
 
+import com.es.backendbuddyfinv.model.Producto;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -36,6 +38,6 @@ public class ProductoDTO {
         this.tipoProducto = producto.getTipoProducto().getObservacion();
         this.estadoProducto = producto.getEstadoProducto().getObservacion();
         this.propietario = producto.getPropietario().getNombre();
-        this.cantidadDisponible = cantidadDisponible != null ? cantidadDisponible : producto.getInventario().getCantidadDisponible();
+        this.cantidadDisponible = cantidadDisponible;
     }
 }

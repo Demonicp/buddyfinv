@@ -7,9 +7,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
+import java.util.List;
 
 @Entity
 @Table(name = "inventarios")
@@ -21,13 +22,10 @@ public class Inventario {
     @Column(name = "id_inventario")
     private Long idInventario;
 
-    @Column(name = "cantidad_disponible", nullable = false)
-    private int cantidadDisponible;
+    
 
-    // Relación con Producto
-    @OneToOne
-    @JoinColumn(name = "id_producto", nullable = false)
-    private Producto producto;
+    @OneToMany(mappedBy = "inventario")
+    private List<DetalleInventario> detalleInventarios;
 
     //propietario del negocio
     @ManyToOne
@@ -38,9 +36,5 @@ public class Inventario {
     public Inventario() {
     }
 
-    // Constructor con parámetros
-    public Inventario(int cantidadDisponible) {
-        this.cantidadDisponible = cantidadDisponible;
-    }
 
 }

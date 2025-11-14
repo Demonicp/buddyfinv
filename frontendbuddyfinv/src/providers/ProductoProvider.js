@@ -62,7 +62,7 @@ export const ProductoProvider = {
       throw new Error('No se pudo obtener el ID del usuario desde el token')
     }
     
-    const res = await fetch(`${PRODUCTOS_BASE}/por-usuario/${userId}`, {
+    const res = await fetch(`${PRODUCTOS_BASE}/propietario`, {
       method: 'GET',
       headers: {
         ...getAuthHeader()

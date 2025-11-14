@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 //import com.es.backendbuddyfinv.repository.ProductoRepository;
 import com.es.backendbuddyfinv.repository.InventarioRepository;
 import com.es.backendbuddyfinv.service.impl.ProductoService;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,11 +21,21 @@ import com.es.backendbuddyfinv.security.CustomUserDetails;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import com.es.backendbuddyfinv.dto.ProductoDTO;
 import com.es.backendbuddyfinv.dto.ProductoEdicionDTO;
 //import com.es.backendbuddyfinv.dto.UsuarioDTO;
 import com.es.backendbuddyfinv.model.Producto;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import com.es.backendbuddyfinv.security.CustomUserDetails;
+import com.es.backendbuddyfinv.security.JwtAuthenticationFilter;
+import jakarta.persistence.EntityNotFoundException;
+
+
+import java.util.List;
+
+import com.es.backendbuddyfinv.dto.EgresoDTO;
+import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
 
 
 @CrossOrigin(origins="http://localhost:5173")
@@ -46,6 +55,7 @@ public class ProductoController {
 
      @Autowired
     private ProductoService productoService ;
+
     
     @Autowired
     private InventarioRepository inventarioRepository;

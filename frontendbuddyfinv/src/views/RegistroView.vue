@@ -15,6 +15,7 @@
                 :class="{ invalido: errores.nombre }"
                 @blur="validarCampo('nombre')"
               />
+              <small v-if="errores.nombre" class="error-text">{{ errores.nombre }}</small>
             </div>
   
             <!-- NIT -->
@@ -27,6 +28,7 @@
                 :class="{ invalido: errores.nitUsuario }"
                 @blur="validarCampo('nitUsuario')"
               />
+              <small v-if="errores.nitUsuario" class="error-text">{{ errores.nitUsuario }}</small>
             </div>
   
             <!-- Email -->
@@ -39,6 +41,7 @@
                 :class="{ invalido: errores.email }"
                 @blur="validarCampo('email')"
               />
+              <small v-if="errores.email" class="error-text">{{ errores.email }}</small>
             </div>
   
             <!-- Nombre del negocio -->
@@ -51,6 +54,7 @@
                 :class="{ invalido: errores.negocio }"
                 @blur="validarCampo('negocio')"
               />
+              <small v-if="errores.negocio" class="error-text">{{ errores.negocio }}</small>
             </div>
   
             <!-- Nombre de usuario -->
@@ -63,6 +67,7 @@
                 :class="{ invalido: errores.username }"
                 @blur="validarCampo('username')"
               />
+              <small v-if="errores.username" class="error-text">{{ errores.username }}</small>
             </div>
   
             <!-- Contraseña -->
@@ -78,6 +83,7 @@
               <small @click="togglePassword" class="ver">
                 {{ mostrarPassword ? 'Ocultar' : 'Mostrar' }}
               </small>
+              <small v-if="errores.password" class="error-text">{{ errores.password }}</small>
             </div>
   
             <!-- Confirmar contraseña -->
@@ -90,6 +96,7 @@
                 :class="{ invalido: errores.confirmPassword }"
                 @blur="validarCampo('confirmPassword')"
               />
+              <small v-if="errores.confirmPassword" class="error-text">{{ errores.confirmPassword }}</small>
             </div>
           </div>
   
@@ -97,7 +104,12 @@
             {{ esperandoRespuesta ? "Registrando..." : "Registrarme" }}
           </button>
   
-          <p class="mensaje" v-if="mensaje">{{ mensaje }}</p>
+          <p 
+            :class="esExito ? 'mensaje-exito':'mensaje-error'"
+            v-if="mensaje"
+          >
+            {{ mensaje }}
+          </p>
   
           <p class="volver">
             <router-link to="/login">Volver al login</router-link>
@@ -136,6 +148,7 @@
         errores: {},
         mostrarPassword: false,
         esperandoRespuesta: false,
+        esExito: false,
       };
     },
     computed: {
@@ -156,37 +169,37 @@
   switch (campo) {
     case "nombre":
       if (!valor || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(valor)) 
-        this.errores.nombre = true;
+        this.errores.nombre = "El nombre solo puede tener letras y espacios.";
       break;
 
     case "nitUsuario":
       if (!valor || !/^\d+$/.test(valor)) 
-        this.errores.nitUsuario = true;
+        this.errores.nitUsuario = "El NIT solo puede contener números.";
       break;
 
     case "email":
       if (!valor || !/^[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(valor)) 
-        this.errores.email = true;
+        this.errores.email = "Correo electrónico inválido.";
       break;
 
     case "negocio":
       if (!valor || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(valor)) 
-        this.errores.negocio = true;
+        this.errores.negocio = "El nombre del negocio solo puede tener letras y espacios.";
       break;
 
     case "username":
-      if (!valor || !/^[A-Za-z0-9]+$/.test(valor)) 
-        this.errores.username = true;
+      if (!valor || !/^[A-Za-z0-9]{8,20}$/.test(valor)) 
+        this.errores.username = "El nombre de usuario debe tener entre 8 y 20 caracteres alfanumericos, sin espacios en blanco";
       break;
 
     case "password":
       if (!valor || !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[^\s]{8,30}$/.test(valor)) 
-        this.errores.password = true;
+        this.errores.password = "La contraseña debe tener 8-30 caracteres, una mayúscula, un número y un símbolo.";
       break;
 
     case "confirmPassword":
       if (valor !== this.form.password) 
-        this.errores.confirmPassword = true;
+        this.errores.confirmPassword = "Las contraseñas no coinciden.";
       break;
   }
 
@@ -194,8 +207,18 @@
   this.mensaje = Object.values(this.errores).some((v) => v)
     ? "Existen campos sin diligenciar o con formato inválido."
     : "";
-}
-,
+},
+validarCampos(){
+  let todoValido = true;
+
+  for (const campo in this.form){
+    this.validarCampo(campo);
+    if (this.errores[campo]){
+      todoValido=false;
+    }
+  }
+  return todoValido;
+},
   
       async registrarUsuario() {
         this.mensaje = "";
@@ -211,9 +234,11 @@
           const response = await UsuarioProvider.registrar(this.form);
   
           if (response.success) {
+            this.esExito = true;
             this.mensaje = "Negocio registrado exitosamente.";
             setTimeout(() => this.$router.push("/login"), 2000);
           } else {
+            this.esExito = false;
             this.mensaje = response.message || "Error en el registro.";
           }
         } catch (error) {
@@ -233,16 +258,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     background: #f5f7fa;
     font-family: "Segoe UI", sans-serif;
-    padding: 20px;
+    padding: 0 20px;
+    box-sizing: border-box;
   }
   
   .registro-box {
     background: white;
-    padding: 40px 60px;
+    padding: 30px 40px;
     border-radius: 16px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     width: 100%;
@@ -328,6 +354,19 @@
     color: red;
     font-weight: 500;
   }
+  .mensaje-error {
+  color: red;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 500;
+}
+
+.mensaje-exito {
+  color: #008f39; /* verde bonito */
+  text-align: center;
+  margin-top: 15px;
+  font-weight: 500;
+}
   
   .volver {
     text-align: center;
@@ -358,6 +397,12 @@
     button {
       margin-top: 20px;
     }
+  }
+  .error-text{
+    color: red;
+    font-size: 0.85em;
+    margin-top: 3px;
+    display: block;
   }
   </style>
   

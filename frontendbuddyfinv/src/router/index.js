@@ -3,7 +3,9 @@ import DashboardLayout from '../layouts/DashboardLayout.vue'
 import DashboardOpciones from '@/views/DashboardOpciones.vue'
 import IngresoTable from '../components/IngresoTable.vue'
 import VentaView from '../views/VentaView.vue'
-
+import AgregarProductoView from '../views/AgregarProductoView.vue'
+import ModificarProductoView from '../views/ModificarProductoView.vue'
+import ReabastecerProductoView from '../views/ReabastecerProductoView.vue'
 //import TestProducto from '../views/TestProducto.vue'
 import EgresoView from '@/views/EgresoView.vue'
 import InvProductoView from '../views/InvProductoView.vue'
@@ -25,7 +27,7 @@ const routes = [
     name: 'Login',
     component: () => import('../views/LoginView.vue')
   },
-  {
+    {
     path: '/dashboard',
     component: DashboardLayout,
     redirect: '/dashboard/dashboard',
@@ -40,7 +42,11 @@ const routes = [
     ]
   }
   
+
 ]
+  
+
+
 
 const router = createRouter({
   history: createWebHistory(),

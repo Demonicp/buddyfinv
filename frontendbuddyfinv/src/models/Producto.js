@@ -1,11 +1,11 @@
 export class ProductoDTO {
-  constructor({ id, nombre, precio, tipoProducto, estadoProducto, propietario, cantidadDisponible }) {
-    this.id = id;
-    this.nombre = nombre;
-    this.precio = precio;
-    this.tipoProducto = tipoProducto;
-    this.estadoProducto = estadoProducto;
-    this.propietario = propietario;
-    this.cantidadDisponible = cantidadDisponible || 0;
+  constructor(data) {
+    this.id = data.id
+    this.nombre = data.nombre
+    this.precio = data.precio
+    this.tipoProducto = data.tipoProducto
+    this.estadoProducto = data.estadoProducto
+    this.propietario = data.propietario
+    this.cantidadDisponible = data.cantidadDisponible // ✅ este campo
   }
 }

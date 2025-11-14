@@ -24,10 +24,14 @@ public class AuthService {
     private final ConcurrentHashMap<String, Integer> intentosFallidos = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> bloqueoUsuarios = new ConcurrentHashMap<>();
 
-    public AuthService(AuthenticationManager authManager, UsuarioService usuarioService, JwtUtil jwtUtil) {
+    //Email de bienvenida
+    private final EmailService emailService;
+
+    public AuthService(AuthenticationManager authManager, UsuarioService usuarioService, JwtUtil jwtUtil, EmailService emailService) {
         this.authManager = authManager;
         this.usuarioService = usuarioService;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
     }
 
     public AuthResponse login(AuthRequest request) {
