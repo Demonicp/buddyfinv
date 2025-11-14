@@ -29,7 +29,7 @@
           <span>CONFIGURACION</span>
         </button>
       </nav>
-      <button class="cerrar-sesion" @click="cerrarSesion">
+      <button class="cerrar-sesion" @click="confirmLogout = true ">
         <IconCerrarSesion />
         <span>CERRAR SESIÓN</span>
       </button>
@@ -45,7 +45,23 @@
           <span>{{ username }}</span>
         </div>
       </div>
+
       <RouterView />
+
+      <div v-if="confirmLogout" class="confirm-overlay">
+        <div class="confirm-box">
+          <p>¿Está seguro que desea cerrar la sesión?</p>
+          <div class="confirm-actions">
+            <button class="btn-confirm" @click="handleLogout">Confirmar</button>
+            <button class="btn-cancel" @click="confirmLogout = false">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="showSuccess" class="success-message">
+        Sesión cerrada correctamente.
+      </div>
+
     </main>
   </div>
 </template>
@@ -74,7 +90,10 @@ export default {
       ruta: this.$route.path === '/dashboard/dashboard' ? 'dashboard' : this.$route.name,
       rolUsuario: '',
       fechaHora: '',
-      username: ''
+      username: '',
+      confirmLogout: false,
+      showSuccess: false,
+      usuarioStore: null,
     }
   },
   mounted() {
@@ -94,6 +113,7 @@ export default {
       return
     }
 
+    this.usuarioStore = useUsuarioStore()
     this.actualizarFechaHora()
     this._intervaloFecha = setInterval(this.actualizarFechaHora, 60000)
   },
@@ -127,10 +147,23 @@ export default {
         this.$router.push({ name: nombreRuta })
       }
     },
-    cerrarSesion() {
-      const usuarioStore = useUsuarioStore()
-      usuarioStore.cerrarSesion()
-      this.$router.push('/login')
+    async handleLogout(){
+      try{
+        await this.usuarioStore.cerrarSesion()
+        this.confirmLogout = false
+        this.showSuccess = true
+        this.$router.replace({ name: 'Login', query: { mensaje: 'Sesión cerrada correctamente' } })
+      }catch(error){
+        console.error('Error al cerrar sesión:', error)
+      }
+    }
+
+    
+        
+  },
+  beforeUnmount() {
+    if (this._intervaloFecha) {
+      clearInterval(this._intervaloFecha)
     }
   },
   beforeUnmount() {
@@ -146,108 +179,183 @@ export default {
 }
 </script>
   
-  <style scoped>
-  .layout {
-    display: flex;
-    min-height: 100vh;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #fdf6ec;
-  }
-  
-  .sidebar {
-    width: 240px;
-    background-color: #fff3d4;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-  }
-  
-  .logo {
-    font-size: 1.5rem;
-    color: #d35400;
-    margin-bottom: 2rem;
-  }
-  
-  nav button {
-    background: none;
-    border: none;
-    padding: 0.8rem;
-    text-align: left;
-    font-size: 1rem;
-    color: #a84300;
-    cursor: pointer;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    transition: background-color 0.2s;
-  }
-  
-  nav button svg {
-    flex-shrink: 0;
-  }
-  
-  nav button.activo {
-    background-color: #f8e0c0;
-    font-weight: bold;
-  }
-  
-  nav button:hover {
-    background-color: #ffe6cc;
-  }
-  
-  .separator {
-    height: 1px;
-    background-color: rgba(168, 67, 0, 0.2);
-    margin: 0.5rem 0;
-  }
-  
-  .cerrar-sesion {
-    background-color: #e74c3c;
-    color: white;
-    border: none;
-    padding: 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .cerrar-sesion svg {
-    flex-shrink: 0;
-  }
-  
-  .contenido {
-    flex: 1;
-    padding: 0;
-    background-color: #ffffff;
-    min-height: 100vh;
-  }
-  
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    background-color: #ffffff;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  }
-  
-  .fecha-hora,
-  .usuario-info {
-    font-size: 1.2rem;
-    color: #333;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  </style>
+<style scoped>
+.layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fdf6ec;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #fff3d4;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.logo {
+  font-size: 1.5rem;
+  color: #d35400;
+  margin-bottom: 2rem;
+}
+
+nav button {
+  background: none;
+  border: none;
+  padding: 0.8rem;
+  text-align: left;
+  font-size: 1rem;
+  color: #a84300;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+nav button svg {
+  flex-shrink: 0;
+}
+
+nav button.activo {
+  background-color: #f8e0c0;
+  font-weight: bold;
+}
+
+nav button:hover {
+  background-color: #ffe6cc;
+}
+
+.separator {
+  height: 1px;
+  background-color: rgba(168, 67, 0, 0.2);
+  margin: 0.5rem 0;
+}
+
+.cerrar-sesion {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.cerrar-sesion svg {
+  flex-shrink: 0;
+}
+
+.contenido {
+  flex: 1;
+  padding: 0;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.fecha-hora,
+.usuario-info {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Modal de confirmación */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.confirm-box {
+  background: #fff;
+  color: black;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.confirm-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.btn-confirm {
+  background: #ffbc21;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-confirm:hover {
+  background: #ffbc21;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-cancel:hover {
+  background: #5a6268;
+}
+
+/* Mensaje de éxito */
+.success-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #a7a328;
+  color: rgb(0, 0, 0);
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  animation: fadeInOut 2s ease forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(20px); }
+}
+</style>

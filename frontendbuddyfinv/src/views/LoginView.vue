@@ -1,5 +1,8 @@
 <template>
   <div class="login-container">
+    <div v-if="mensajeExito" class="success-message">
+      {{ mensajeExito }}
+    </div>
     <img src="@/assets/logo.svg" alt="Logo del sistema" class="logo" />
 
     <div class="login-box">
@@ -75,6 +78,7 @@ const passwordValida = ref(false)
 const mostrarPassword = ref(false)
 const bloqueo = ref(false)
 const intentos = ref(0)
+const mensajeExito = ref('') // Nuevo estado para mensaje de éxito
 
 const usuarioStore = useUsuarioStore()
 const router = useRouter()
@@ -156,6 +160,14 @@ onMounted(() => {
   if (guardado) {
     usuario.value = guardado
     recordar.value = true
+  }
+  const mensaje = router.currentRoute.value.query.mensaje
+  if (mensaje) {
+    mensajeExito.value = mensaje
+    setTimeout(() => {
+      mensajeExito.value = ''
+      router.replace({ query: {} })
+    }, 2000)
   }
 })
 </script>
@@ -250,5 +262,18 @@ button:disabled {
 .links a {
   color: #004aad;
   text-decoration: none;
+}
+.success-message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1ad063;
+  color: #f3f3f3;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  font-weight: bold;
 }
 </style>

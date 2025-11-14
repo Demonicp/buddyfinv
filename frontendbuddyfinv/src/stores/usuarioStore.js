@@ -27,7 +27,7 @@ export const useUsuarioStore = defineStore('usuario', {
     },
 
     async cerrarSesion() {
-      const router = useRouter()
+
 
       try {
         await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
@@ -43,7 +43,7 @@ export const useUsuarioStore = defineStore('usuario', {
         this.id = null
         this.token = null
         localStorage.removeItem('token')
-        router.push('/login')
+
       }
     }
   }
