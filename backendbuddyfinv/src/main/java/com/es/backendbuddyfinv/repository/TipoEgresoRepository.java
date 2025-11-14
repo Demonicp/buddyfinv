@@ -20,5 +20,7 @@ public interface TipoEgresoRepository extends JpaRepository<TipoEgreso, Long> {
      */
     @Query("SELECT t FROM TipoEgreso t WHERE LOWER(TRIM(t.descripcion)) = LOWER(TRIM(:descripcion))")
     Optional<TipoEgreso> findByDescripcion(@Param("descripcion") String descripcion);
+
+
 }
 

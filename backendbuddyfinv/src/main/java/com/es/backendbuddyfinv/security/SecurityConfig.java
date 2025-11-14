@@ -57,12 +57,12 @@ public class SecurityConfig {
                     "/swagger-ui.html"
                 ).permitAll()
                 .requestMatchers("/auth/**").permitAll() 
-
                 .requestMatchers("/usuarios/**").hasRole("ADMIN")
                 .requestMatchers("/productos/**").authenticated() 
                 .requestMatchers("/ventas/**").hasRole("ADMIN")
                 .requestMatchers("/Egresos/**").authenticated()
                 .requestMatchers("/ingresos/**").permitAll()
+                .requestMatchers("/tipo-egresos/**").permitAll()
             ).addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class)
 
             .build();

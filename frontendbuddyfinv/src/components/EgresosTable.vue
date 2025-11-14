@@ -84,9 +84,10 @@
           </div>
         </div>
 
+
         <!-- Campo Concepto: descripción del egreso (ej: Compra de materiales) -->
         <div class="form-group">
-          <label>Concepto:</label>
+          <label>observaciones:</label>
           <input 
             v-model="nuevoEgreso.observacion" 
             type="text" 
@@ -95,15 +96,16 @@
           />
         </div>
 
-        <!-- Campo Categoría: tipo de egreso (ej: Gastos administrativos) -->
         <div class="form-group">
           <label>Categoría:</label>
-          <input 
-            v-model="nuevoEgreso.categoria" 
-            type="text" 
-            placeholder="Ej: Gastos administrativos"
-            class="form-input"
-          />
+          <select v-model="nuevoEgreso.categoria" class="form-select">
+            <option value="">Seleccione una categoría...</option>
+      <option v-for="tipo in tiposEgreso" :key="tipo.idTipoEgreso" :value="tipo.descripcion">
+          {{ tipo.descripcion }}
+      </option>
+
+
+          </select>
         </div>
 
         <!-- Campo Valor: monto del egreso en números -->
@@ -164,6 +166,7 @@ export default {
   name: 'EgresoTable',
   data() {
     return {
+      tiposEgreso:[],
       egresos: [], // Lista de egresos obtenidos del backend
       totalEgresos: 0, // Suma total de todos los egresos
       mostrarModal: false, // Controla la visibilidad del modal de registro el false es porque mientras no se unda el boton no se abra el formulario
@@ -194,7 +197,19 @@ export default {
     }
   },
   methods: {
-    
+    async cargarTiposEgreso() {
+    try {
+      const response = await fetch('http://localhost:8080/tipo-egresos');
+      const data = await response.json();
+      this.tiposEgreso = data;
+    } catch (error) {
+      console.error('Error al cargar tipos de egreso:', error);
+    }
+  },mounted() {
+  this.cargarTiposEgreso();
+},
+
+
    
     formatoMoneda(valor) {
       
@@ -370,6 +385,7 @@ export default {
   async mounted() {
    
     await this.cargarEgresos()
+    await this.cargarTiposEgreso()
   }
 }
 </script>

@@ -25,6 +25,8 @@ public class Egreso {
     @Column(name = "id_egreso")
     private Long idEgreso;
 
+    
+
     @Column(name = "costo", nullable = false)
     private Double costo;
 

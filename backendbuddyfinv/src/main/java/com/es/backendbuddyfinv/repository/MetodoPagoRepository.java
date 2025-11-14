@@ -19,5 +19,8 @@ import com.es.backendbuddyfinv.model.MetodoPago;
  */
 @Repository
 public interface MetodoPagoRepository extends JpaRepository<MetodoPago, Integer> {
+    
+
+
 }
 
