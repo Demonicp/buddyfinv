@@ -60,6 +60,8 @@ public class SecurityConfig {
                 .requestMatchers("/Egresos/**").authenticated()
                 .requestMatchers("/ingresos/**").permitAll()
                 .requestMatchers("/tipo-egresos/**").permitAll()
+                .requestMatchers("/tipo-producto/**").hasRole("ADMIN")
+                .requestMatchers("/estado-producto/**").authenticated()
             ).addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class)
 
             .build();

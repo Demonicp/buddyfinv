@@ -1,5 +1,6 @@
 
 import { ProductoDTO } from '../models/Producto.js'
+import { ProductoEdicionDTO } from '../models/ProductoEdicion.js'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 const PRODUCTOS_BASE = `${API_BASE_URL}/productos`
@@ -30,7 +31,7 @@ function getUserIdFromToken() {
   try {
     const token = localStorage.getItem('token')
     if (!token) return null
-    
+
     const payloadBase64 = token.split('.')[1]
     const payload = JSON.parse(atob(payloadBase64))
     return payload.idUsuario || null
@@ -60,7 +61,7 @@ export const ProductoProvider = {
     if (!userId) {
       throw new Error('No se pudo obtener el ID del usuario desde el token')
     }
-    
+
     const res = await fetch(`${PRODUCTOS_BASE}/propietario`, {
       method: 'GET',
       headers: {
@@ -77,7 +78,7 @@ export const ProductoProvider = {
     const res = await fetch(`${PRODUCTOS_BASE}/save`, {
       method: 'POST',
       credentials: 'include',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         ...getAuthHeader()
       },
@@ -96,5 +97,32 @@ export const ProductoProvider = {
       credentials: 'include'
     })
     return handleResponse(res)
+  },
+
+
+
+  //////////////////SANTIAGO MONTENEGRO RUALES MODIFICAR PRODUCTO
+
+  async buscarPorCodigo(idProducto) {
+    const res = await fetch(`${PRODUCTOS_BASE}/modificar/buscar/${idProducto}`, {
+      method: 'GET',
+      headers: { ...getAuthHeader() },
+      credentials: 'include'
+    })
+    const data = await handleResponse(res)
+    return new ProductoEdicionDTO(data)
+  },
+  async guardarEdicion(productoEditadoDTO) {
+    const res = await fetch(`${PRODUCTOS_BASE}/modificar/guardar`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      credentials: 'include',
+      body: JSON.stringify(productoEditadoDTO)
+    })
+    return handleResponse(res)
   }
+  //////////////////SANTIAGO MONTENEGRO RUALES MODIFICAR PRODUCTO FIN
 }

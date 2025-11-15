@@ -1,30 +1,35 @@
 <template>
-  <div class="inventario">
-    <h2>Visualiza, añade y modifica tus productos</h2>
+  <div class="inventario-wrapper">
+    <div class="inventario-card">
+      <h2 class="inventario-title">Visualiza, añade y modifica tus productos</h2>
 
-    <table>
-      <thead>
-        <tr>
-          <th @click="ordenar('id')">Código</th>
-          <th @click="ordenar('nombre')">Nombre</th>
-          <th @click="ordenar('precio')">Precio</th>
-          <th @click="ordenar('tipoProducto')">Tipo</th>
-          <th @click="ordenar('propietario')">Propietario</th>
-          <th @click="ordenar('cantidadDisponible')">Cantidad Disponible</th>
-        </tr>
-      </thead>
+      <div class="table-scroll">
+        <div class="table-card">
+          <div class="table-header" role="row">
+            <span @click="ordenar('id')">Código</span>
+            <span @click="ordenar('nombre')">Nombre</span>
+            <span @click="ordenar('precio')">Precio</span>
+            <span @click="ordenar('tipoProducto')">Tipo</span>
+            <span @click="ordenar('propietario')">Propietario</span>
+            <span @click="ordenar('cantidadDisponible')">Cantidad Disponible</span>
+          </div>
 
-      <tbody>
-        <tr v-for="producto in productosOrdenados" :key="producto.id">
-          <td>{{ producto.id}}</td>
-          <td>{{ producto.nombre }}</td>
-          <td>{{ producto.precio }}</td>
-          <td>{{ producto.tipoProducto }}</td>
-          <td>{{ producto.propietario }}</td>
-          <td>{{ producto.cantidadDisponible ?? 0 }}</td>
-        </tr>
-      </tbody>
-    </table>
+          <div
+            v-for="producto in productosOrdenados"
+            :key="producto.id"
+            class="table-row"
+            role="row"
+          >
+            <span class="cell">{{ producto.id }}</span>
+            <span class="cell">{{ producto.nombre }}</span>
+            <span class="cell">{{ producto.precio }}</span>
+            <span class="cell">{{ producto.tipoProducto }}</span>
+            <span class="cell">{{ producto.propietario }}</span>
+            <span class="cell">{{ producto.cantidadDisponible ?? 0 }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -71,41 +76,87 @@ const productosOrdenados = computed(() => {
 </script>
 
 <style scoped>
-.inventario {
+.inventario-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 40px auto;
   padding: 20px;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.inventario h2 {
-  color: #e6dfda9a; 
-  margin-bottom: 1.5rem;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background-color: white;
-  color: #100f0d;
-  font-family: 'Futura', 'Garamond', avenir;
+.inventario-card {
+  background: #fffaf3;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 2px #f8c471;
+  border: 1px solid #f5cba7;
 }
 
-th {
-  background-color: #e89236; 
-  color: white;
+.inventario-title {
+  text-align: center;
+  color: #e67e22;
+  margin-bottom: 20px;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.table-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-color: #f8c471 transparent;
+  scrollbar-width: thin;
+}
+
+.table-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background-color: #f8c471;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.table-card .table-header,
+.table-card .table-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.table-card .table-header {
+  background: #f8c471;
+  color: #4d2c0c;
+  text-transform: uppercase;
+  font-weight: bold;
   cursor: pointer;
-  padding: 10px;
-  text-align: left;
 }
 
-td {
-  border: 1px solid white; /*borde*/
-  padding: 10px;
+.table-card .table-row {
+  background: #fdf6ec;
+  margin-top: 8px;
+  transition: 0.2s;
 }
 
-tr:nth-child(even) {
-  background-color: #f5f5f5; /* fila alterna */
+.table-card .table-row:nth-child(even) {
+  background: #faebd7;
 }
 
-th:hover {
-  background-color: #ff7b00; /* pasar el cursor */
+.table-card .table-row:hover {
+  background: #f5cba7;
+  transform: scale(1.01);
+}
+
+.cell {
+  color: #333;
 }
 </style>

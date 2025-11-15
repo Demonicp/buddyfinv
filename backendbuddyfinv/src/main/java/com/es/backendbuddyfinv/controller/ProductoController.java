@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.es.backendbuddyfinv.repository.InventarioRepository;
 import com.es.backendbuddyfinv.service.impl.ProductoService;
 import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.util.stream.Collectors;
@@ -23,9 +24,12 @@ import jakarta.persistence.EntityNotFoundException;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import com.es.backendbuddyfinv.dto.EgresoDTO;
 import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
+import com.es.backendbuddyfinv.dto.ProductoEdicionDTO;
+
 
 
 @CrossOrigin(origins="http://localhost:5173")
@@ -37,19 +41,20 @@ import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
 
 public class ProductoController {
 
-    //@Autowired
-    //para inyectar el repositorio de productos
 
-    //private ProductoRepository productoRepository;
-    //endpoint para obtener todos los productos
-
-     @Autowired
+    @Autowired
     private ProductoService productoService ;
 
     
     @Autowired
     private InventarioRepository inventarioRepository; //creo que aqui no debe ir este repository pero por ahora lo dejare ahi para no romper nada
-/*
+   
+    @Autowired
+    private com.es.backendbuddyfinv.repository.TipoProductoRepository tipoProductoRepository;
+
+    @Autowired
+    private com.es.backendbuddyfinv.repository.EstadoProductoRepository estadoProductoRepository;
+    /*
 @GetMapping("/propietario")
         public ResponseEntity<List<EgresoDTO>> obtenerEgresosDetallados() {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -143,5 +148,85 @@ public class ProductoController {
     return ResponseEntity.ok(productosDTO);
 }**/
 
+////SANTIAGO MONTENEGRO RUALES MODFICAR PRODUCTO INICIO
+@GetMapping("/modificar/buscar/{idProducto}")
+public ResponseEntity<?> buscarProductoParaModificar(@PathVariable Long idProducto) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long idUsuario = userDetails.getIdUsuario();
+    String rol = userDetails.getRol();
+    Long idAdministrador = userDetails.getIdAdministrador();
+
+    Optional<Producto> productoOpt = productoService.getProductoEditablePorCodigo(
+        idProducto,
+        idUsuario,
+        rol,
+        idAdministrador
+    );
+
+    if (productoOpt.isEmpty()) {
+        return ResponseEntity.status(404).body("No existe un producto con ese código o no tienes permiso para modificarlo.");
+    }
+
+    ProductoEdicionDTO dto = new ProductoEdicionDTO(productoOpt.get());
+    return ResponseEntity.ok(dto);
+}
+
+@PutMapping("/modificar/guardar")
+public ResponseEntity<?> guardarModificacionProducto(@RequestBody ProductoEdicionDTO dto) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long idUsuario = userDetails.getIdUsuario();
+    String rol = userDetails.getRol();
+    Long idAdministrador = userDetails.getIdAdministrador();
+
+    Optional<Producto> productoOpt = productoService.getProductoEditablePorCodigo(
+        dto.getIdProducto(),
+        idUsuario,
+        rol,
+        idAdministrador
+    );
+
+    if (productoOpt.isEmpty()) {
+        return ResponseEntity.status(404).body("Producto no encontrado o sin permisos.");
+    }
+
+    Producto producto = productoOpt.get();
+
+    // Validaciones básicas (pueden complementarse con anotaciones en el DTO)
+    if (dto.getNombre() == null || dto.getNombre().trim().isEmpty()) {
+        return ResponseEntity.badRequest().body("No puedes dejar el campo 'nombre' vacío.");
+    }
+
+    if (dto.getPrecio() <= 0) {
+        return ResponseEntity.badRequest().body("El campo 'precio' debe ser mayor a cero.");
+    }
+
+    producto.setNombre(dto.getNombre());
+    producto.setPrecio(dto.getPrecio());
+
+    producto.setTipoProducto(
+        tipoProductoRepository.findById(dto.getIdTipoProducto())
+            .orElseThrow(() -> new RuntimeException("Tipo de producto no válido"))
+    );
+
+    producto.setEstadoProducto(
+        estadoProductoRepository.findById(dto.getIdEstadoProducto())
+            .orElseThrow(() -> new RuntimeException("Estado de producto no válido"))
+    );
+
+    productoService.createProductoModificar(producto);
+    return ResponseEntity.ok("Producto actualizado correctamente.");
+}
+/////SANTIAGO MONTENEGRO RUALES MODIFICAR FIN
 }

@@ -1,6 +1,5 @@
 <template>
   <div class="venta-view">
-    <h1>Gestión de Ventas</h1>
     <div v-if="cargando">Cargando tus ventas...</div>
     <div v-else-if="ventas.length === 0">No tienes ventas registradas.</div>
     <VentaTable :ventas="ventas" />

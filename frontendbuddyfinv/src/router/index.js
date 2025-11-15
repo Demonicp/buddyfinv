@@ -64,7 +64,7 @@ const routes = [
         component: DashboardInventario
       },
       { path: 'verinventario', name: 'VerInventario', component: InvProductoView },
-      { path: 'agregarproducto', name: 'AgregarProducto', component: AgregarProductoView },
+      { path: 'añadirProducto', name: 'AñadirProducto', component: AgregarProductoView },
       { path: 'modificarproducto', name: 'ModificarProducto', component: ModificarProductoView },
       { path: 'reabastecerproducto', name: 'ReabastecerProducto', component: ReabastecerProductoView }
     ]
