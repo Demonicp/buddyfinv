@@ -55,4 +55,17 @@ public class TipoEgresoService {
     public boolean existsById(Long id) {
         return tipoEgresoRepository.existsById(id);
     }
+
+    /**
+     * Busca un tipo de egreso por su descripción
+     * Este método es usado en el endpoint de agregar egreso para verificar
+     * si la categoría proporcionada ya existe en la base de datos.
+     * Si no existe, se crea automáticamente.
+     * 
+     * @param descripcion Descripción del tipo de egreso (ej: "Gastos administrativos")
+     * @return Optional con el TipoEgreso si existe, vacío si no se encuentra
+     */
+    public Optional<TipoEgreso> getTipoEgresoByDescripcion(String descripcion) {
+        return tipoEgresoRepository.findByDescripcion(descripcion);
+    }
 }
