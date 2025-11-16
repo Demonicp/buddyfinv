@@ -18,56 +18,66 @@
       <!-- 🧾 Tabla editable -->
       <div v-if="producto" class="tabla-edicion">
         <table>
-          <tr>
-            <td><strong>Código:</strong></td>
-            <td>{{ producto.idProducto }}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <td><strong>Código:</strong></td>
+              <td>{{ producto.idProducto }}</td>
+            </tr>
 
-          <tr>
-            <td><strong>Nombre:</strong></td>
-            <td>
-              <input
-                v-model="producto.nombre"
-                maxlength="150"
-                :class="{ errorInput: errores.nombre }"
-              />
-              <p v-if="errores.nombre" class="error">{{ errores.nombre }}</p>
-            </td>
-          </tr>
+            <tr>
+              <td><strong>Nombre:</strong></td>
+              <td>
+                <input
+                  v-model="producto.nombre"
+                  maxlength="150"
+                  :class="{ errorInput: errores.nombre }"
+                />
+                <p v-if="errores.nombre" class="error">{{ errores.nombre }}</p>
+              </td>
+            </tr>
 
-          <tr>
-            <td><strong>Precio:</strong></td>
-            <td>
-              <input
-                v-model="producto.precio"
-                type="number"
-                :class="{ errorInput: errores.precio }"
-              />
-              <p v-if="errores.precio" class="error">{{ errores.precio }}</p>
-            </td>
-          </tr>
+            <tr>
+              <td><strong>Precio:</strong></td>
+              <td>
+                <input
+                  v-model="producto.precio"
+                  type="number"
+                  :class="{ errorInput: errores.precio }"
+                />
+                <p v-if="errores.precio" class="error">{{ errores.precio }}</p>
+              </td>
+            </tr>
 
-          <tr>
-            <td><strong>Tipo de producto:</strong></td>
-            <td>
-              <select v-model="producto.idTipoProducto">
-                <option v-for="tipo in tipos" :key="tipo.idTipoProducto" :value="tipo.idTipoProducto">
-                  {{ tipo.observacion }}
-                </option>
-              </select>
-            </td>
-          </tr>
+            <tr>
+              <td><strong>Tipo de producto:</strong></td>
+              <td>
+                <select v-model="producto.idTipoProducto">
+                  <option
+                    v-for="tipo in tipos"
+                    :key="tipo.idTipoProducto"
+                    :value="tipo.idTipoProducto"
+                  >
+                    {{ tipo.observacion }}
+                  </option>
+                </select>
+              </td>
+            </tr>
 
-          <tr>
-            <td><strong>Estado:</strong></td>
-            <td>
-              <select v-model="producto.idEstadoProducto">
-                <option v-for="estado in estados" :key="estado.idEstadoPro" :value="estado.idEstadoPro">
-                  {{ estado.observacion }}
-                </option>
-              </select>
-            </td>
-          </tr>
+            <tr>
+              <td><strong>Estado:</strong></td>
+              <td>
+                <select v-model="producto.idEstadoProducto">
+                  <option
+                    v-for="estado in estados"
+                    :key="estado.idEstadoPro"
+                    :value="estado.idEstadoPro"
+                  >
+                    {{ estado.observacion }}
+                  </option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
         </table>
 
         <!-- ✅ Botones -->
@@ -79,6 +89,7 @@
     </div>
   </div>
 </template>
+
   
   <script setup>
   import { ref, onMounted } from 'vue'
