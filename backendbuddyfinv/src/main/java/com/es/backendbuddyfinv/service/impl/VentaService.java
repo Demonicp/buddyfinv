@@ -2,6 +2,7 @@ package com.es.backendbuddyfinv.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.es.backendbuddyfinv.dto.DetalleProductoDTO;
 import com.es.backendbuddyfinv.dto.DetalleVentaCrearDTO;
+import com.es.backendbuddyfinv.dto.DetalleVentaResponseDTO;
 import com.es.backendbuddyfinv.dto.VentaCrearDTO;
 import com.es.backendbuddyfinv.dto.VentaDetalladaDTO;
+import com.es.backendbuddyfinv.dto.VentaResponseDTO;
 import com.es.backendbuddyfinv.model.DetalleInventario;
 import com.es.backendbuddyfinv.model.DetalleVenta;
 import com.es.backendbuddyfinv.model.EstadoVenta;
@@ -29,6 +32,7 @@ import com.es.backendbuddyfinv.repository.MetodoPagoRepository;
 import com.es.backendbuddyfinv.repository.ProductoRepository;
 import com.es.backendbuddyfinv.repository.UsuarioRepository;
 import com.es.backendbuddyfinv.repository.VentaRepository;
+import com.es.backendbuddyfinv.security.CustomUserDetails;
 
 @Service
 public class VentaService {
@@ -85,6 +89,35 @@ public class VentaService {
 
 
 
+    public VentaResponseDTO toResponse(Venta v) {
+        VentaResponseDTO r = new VentaResponseDTO();
+        r.setIdVenta(v.getIdVenta());
+        r.setCliente(v.getCliente());
+        r.setFecha(v.getFecha());
+        r.setTotal(v.getTotal());
+
+        List<DetalleVenta> detallesEntity = v.getDetalleVentas() == null ? Collections.emptyList() : v.getDetalleVentas();
+
+        List<DetalleVentaResponseDTO> detalles = detallesEntity.stream().map(d -> {
+            DetalleVentaResponseDTO dr = new DetalleVentaResponseDTO();
+            dr.setIdDetalleVenta(d.getIdDetalleVenta());
+            if (d.getProducto() != null) {
+                dr.setProductoId(d.getProducto().getIdProducto());
+                dr.setProductoNombre(d.getProducto().getNombre());
+            }
+            dr.setCantidad(d.getCantidad());
+            dr.setPrecioUnitario(d.getPrecioUnitario());
+            dr.setSubtotal(d.getSubtotal());
+            return dr;
+        }).collect(Collectors.toList());
+
+        r.setDetalles(detalles);
+        return r;
+    }
+
+
+
+
 
 
 
@@ -137,9 +170,33 @@ public class VentaService {
 
     @Transactional
     public Venta registrarVenta(VentaCrearDTO dto, Authentication authentication) {
-        // 1. Usuario autenticado
-        String username = authentication == null ? null : authentication.getName();
-        Usuario usuario = username == null ? null : usuarioRepository.findByUsuario(username).orElse(null);
+        // 1. Obtener usuario autenticado
+        // --- Verificar autenticación ---
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalArgumentException("Usuario no autenticado");
+        }
+
+// --- Obtener entidad Usuario de forma robusta ---
+        Usuario usuario = null;
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails) {
+            CustomUserDetails cud = (CustomUserDetails) principal;
+            Long idUsuario = cud.getIdUsuario();
+            if (idUsuario != null) {
+                usuario = usuarioRepository.findById(idUsuario).orElse(null);
+            }
+            // fallback por username si no se encontró por id
+            if (usuario == null) {
+                String username = authentication.getName();
+                usuario = usuarioRepository.findByUsuario(username).orElse(null);
+            }
+        } else {
+            // Principal no es CustomUserDetails -> fallback por username
+            String username = authentication.getName();
+            usuario = usuarioRepository.findByUsuario(username).orElse(null);
+        }
+
         if (usuario == null) {
             throw new IllegalArgumentException("Usuario autenticado no encontrado");
         }
@@ -223,13 +280,10 @@ public class VentaService {
         // 5. Persistir venta (cascade crea detalles si mapped correctamente)
         Venta ventaGuardada = ventaRepository.save(venta);
 
-        // Si no tienes cascade, persistir detalles manualmente
-        for (DetalleVenta dv : ventaGuardada.getDetalleVentas()) {
-            dv.setVenta(ventaGuardada);
-            detalleVentaRepository.save(dv);
-        }
-
         return ventaGuardada;
     }
+
+
+
 
 }

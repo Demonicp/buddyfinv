@@ -7,5 +7,5 @@ import com.es.backendbuddyfinv.model.EstadoVenta;
 
 @Repository
 public interface EstadoVentaRepository extends JpaRepository<EstadoVenta, Long> {
-    // métodos custom si los necesitas
+
 }
