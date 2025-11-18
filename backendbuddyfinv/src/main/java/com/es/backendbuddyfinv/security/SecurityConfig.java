@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll() 
 
                 .requestMatchers("/usuarios/**").hasRole("ADMIN")
+                .requestMatchers("/EstadoVenta/**").permitAll()
                 .requestMatchers("/productos/**").authenticated() 
                 .requestMatchers("/ventas/**").hasRole("ADMIN")
                 .requestMatchers("/Egresos/**").authenticated()
@@ -62,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/tipo-egresos/**").permitAll()
                 .requestMatchers("/tipo-producto/**").hasRole("ADMIN")
                 .requestMatchers("/estado-producto/**").authenticated()
+                .requestMatchers("/MetodoPago/**").permitAll()
             ).addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class)
 
             .build();

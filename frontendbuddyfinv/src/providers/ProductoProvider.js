@@ -129,7 +129,8 @@ export const ProductoProvider = {
       headers: { ...getAuthHeader() }
     })
     const data = await handleResponse(res)
-    // Si prefieres devolver instancias: return Array.isArray(data) ? data.map(p => new ProductoDTO(p)) : []
-    return data
+    // devolver instancias ProductoDTO para consistencia en la UI
+    return Array.isArray(data) ? data.map(p => new ProductoDTO(p)) : []
   }
+
 }
