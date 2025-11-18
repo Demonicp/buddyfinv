@@ -43,6 +43,17 @@ export const UsuarioProvider = {
     } catch (error) {
       return { success: false, message: 'Error de conexión con el servidor' };
     }
+  },
+  async eliminar(idUsuario) {
+    const res = await fetch(`${API_BASE_URL}/usuarios/${idUsuario}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      }
+    });
+    return handleResponse(res);
   }
+  
   
 }

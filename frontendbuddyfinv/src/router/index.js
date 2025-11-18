@@ -14,6 +14,9 @@ import EgresosTable from '@/components/EgresosTable.vue'
 import EgresoView from '@/views/EgresoView.vue'
 import InvProductoView from '../views/InvProductoView.vue'
 import DashboardInventario from '../views/DashboardInventario.vue'
+import DashBoardConfiguracionView from '../views/DashBoardConfiguracionView.vue'
+import ConfiguracionEliminarUsuario from '../components/configuracionEliminarUsuario.vue'
+
 
 const routes = [
   {
@@ -90,9 +93,33 @@ const routes = [
       meta: { requiresAuth: true }
     }
   ]
+  /* 
+    JUAAN DAVIIIIIID implemento esta ruta que me abre el dashboard config y despues configure para que me redirija a la ruta(eliminar usuario)
+*/
+
+},{
+  path: '/dashboardConfig',
+  component: DashboardLayout,
+  redirect: '/dashboardConfig/configuracion',
+  meta: { requiresAuth: true },
+  children: [
+    {
+      path: 'configuracion',
+      name: 'dashboardConfiguracion',
+      component: DashBoardConfiguracionView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: 'eliminarusuario',
+      name: 'Usuario',
+      component: ConfiguracionEliminarUsuario,
+      meta: { requiresAuth: true }
+    }
+
+  ]
 }
 
-  
+
 
 ]
   

@@ -60,6 +60,12 @@ INSERT INTO productos ( nombre, precio, id_tipo_producto, id_estado_producto, id
 ( 'Hamburguesa Clásica', 6500, 2, 1, 1),
 ( 'Ensalada Mixta', 6100, 9, 1, 1);
 
+
+
+
+
+
+
 -- Ventas agrupadas por fecha, cada fecha con un solo empleado
 INSERT INTO ventas ( fecha, total, id_metodo_pago, id_estado_venta, id_usuario, id_propietario) VALUES
 ( '2025-11-01 09:15:00', 25000, 1, 1, 2, 1),
@@ -136,3 +142,26 @@ INSERT INTO detalle_ingreso (id_ingreso, id_venta) VALUES
 (3, 5), (3, 6),       -- 2025-11-03
 (4, 7), (4, 8),       -- 2025-11-04
 (5, 9), (5, 10);      -- 2025-11-05
+
+
+INSERT INTO inventarios (id_propietario) VALUES (1);
+
+
+-- Detalle Inventario para inventario 1 y propietario 1
+INSERT INTO detalle_inventario (cantidad_disponible, id_producto, id_inventario, id_propietario) VALUES
+(50, 1, 1, 1),  -- Café Americano
+(30, 2, 1, 1),  -- Sandwich de Pollo
+(20, 3, 1, 1),  -- Brownie con Helado
+(40, 4, 1, 1),  -- Té Verde
+(35, 5, 1, 1),  -- Empanada de Queso
+(25, 6, 1, 1),  -- Galleta Integral
+(15, 7, 1, 1),  -- Combo Desayuno
+(45, 8, 1, 1),  -- Jugo Natural
+(28, 9, 1, 1),  -- Hamburguesa Clásica
+(18, 10, 1, 1); -- Ensalada Mixta
+
+
+
+
+
+

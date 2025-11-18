@@ -78,12 +78,7 @@ public class EgresoService {
         }
     }
     
-    public List<EgresoDTO> filtrarPorCosto(Long idUsuario, Long costo){
-        List<Egreso> egresos = egresoRepository.filtrarByCosto(idUsuario, costo);
-        return egresos.stream().map(EgresoDTO::new).collect(Collectors.toList());
-
-
-    }
+   
     
 
     public List<Egreso> ListarEgresosXusuario(Long idPropietario){

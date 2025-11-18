@@ -21,16 +21,19 @@
           <IconInventario />
           <span>INVENTARIO</span>
         </button>
-
+        
         <button @click="ir('graficas')" :class="{ activo: ruta === 'graficas' }">
           <IconGraficas />
           <span>GRAFICAS</span>
         </button>
         <div class="separator"></div>
-        <button @click="ir('configuracion')" :class="{ activo: ruta === 'configuracion' }">
-          <IconConfiguracion />
-          <span>CONFIGURACION</span>
-        </button>
+
+           <!-- Juan daviiiiiiiiiiiid modifique este boton que lo que hace es que me redirija al dashboardconfiguracion  -->
+        <button @click="ir('dashboardConfiguracion')" :class="{ activo: ruta === 'dashboardConfiguracion' }">
+  <IconConfiguracion />
+  <span>CONFIGURACION</span>
+</button>
+
       </nav>
       <button class="cerrar-sesion" @click="confirmLogout = true ">
         <IconCerrarSesion />
