@@ -71,7 +71,7 @@ export const UsuarioProvider = {
       credentials: 'include'
     });
     return handleResponse(res);
-  }
+  },
   ////////////////Santiago montenegro ruales perfil usuario fin
   
   async getAllUsuariosByPropietario() {
