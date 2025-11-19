@@ -1,4 +1,3 @@
-// src/services/productosProvider.js
 import { ProductoDTO } from '../models/Producto.js'
 import { ProductoEdicionDTO } from '../models/ProductoEdicion.js'
 
@@ -50,7 +49,7 @@ function getUserIdFromToken() {
 }
 
 export const ProductoProvider = {
-  // Obtener todos los productos (usa el mapeo a ProductoDTO que ya tenías)
+  // Obtener todos los productos
   async getAll() {
     const res = await fetch(`${PRODUCTOS_BASE}/all`, {
       method: 'GET',
@@ -61,7 +60,7 @@ export const ProductoProvider = {
     return Array.isArray(data) ? data.map(p => new ProductoDTO(p)) : []
   },
 
-  // Obtener productos del usuario autenticado (basado en el token)
+  // Obtener productos del usuario autenticado
   async getByUsuario() {
     const userId = getUserIdFromToken()
     if (!userId) {
@@ -77,7 +76,7 @@ export const ProductoProvider = {
     return Array.isArray(data) ? data.map(p => new ProductoDTO(p)) : []
   },
 
-  // Guardar o actualizar un producto
+  // Guardar o actualizar un producto (endpoint /save asumido)
   async save(producto) {
     const res = await fetch(`${PRODUCTOS_BASE}/save`, {
       method: 'POST',
@@ -120,17 +119,34 @@ export const ProductoProvider = {
     return handleResponse(res)
   },
 
-  // Útil para selector de productos: listar productos mínimos (sin mapeo si otros components esperan raw)
-  // Mantén compatibilidad: si otros componentes esperan ProductoDTO, descomenta la línea de mapeo.
-  async listarParaSelector(params = {}) {
-    const qs = new URLSearchParams(params).toString()
-    const res = await fetch(`${PRODUCTOS_BASE}${qs ? `?${qs}` : ''}`, {
+  // Buscar por id (usa GET /productos/{id})
+  async buscarPorId(id) {
+    const res = await fetch(`${PRODUCTOS_BASE}/${id}`, {
       method: 'GET',
-      headers: { ...getAuthHeader() }
+      headers: { ...getAuthHeader() },
+      credentials: 'include'
+    })
+    return handleResponse(res)
+  },
+
+  // Buscar por texto para selector/autocomplete (usa GET /productos/search?q=&limit=)
+  async search(q, limit = 12) {
+    const params = new URLSearchParams({ q, limit: String(limit) }).toString()
+    const res = await fetch(`${PRODUCTOS_BASE}/search?${params}`, {
+      method: 'GET',
+      headers: { ...getAuthHeader() },
+      credentials: 'include'
     })
     const data = await handleResponse(res)
     // devolver instancias ProductoDTO para consistencia en la UI
     return Array.isArray(data) ? data.map(p => new ProductoDTO(p)) : []
-  }
+  },
 
+  // Compatibilidad: listarParaSelector(params) -> usa /search por defecto
+  async listarParaSelector(params = {}) {
+    const qs = new URLSearchParams(params).toString()
+    // si el caller pasa q/limit, reaprovechamos search; si no, llamamos /search sin q devolviendo []
+    if (!params.q) return []
+    return this.search(params.q, params.limit || 12)
+  }
 }

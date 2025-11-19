@@ -1,7 +1,5 @@
 <template>
   <div class="venta-form">
-
-
     <form @submit.prevent="submit">
       <div class="field">
         <label>Nombre Cliente</label>
@@ -24,22 +22,14 @@
         </select>
       </div>
 
-      <!-- Autocomplete / búsqueda de productos -->
+      <!-- Autocomplete / búsqueda de productos usando ProductoSelector -->
       <div class="field">
         <label>Buscar producto</label>
-        <input
-          type="search"
-          v-model="productoQuery"
-          @input="onQueryInput"
-          placeholder="Por nombre o id..."
-          autocomplete="off"
+        <ProductoSelector
+          v-model="selectedProducto"
+          :placeholder="'Buscar producto por nombre o id...'"
+          @select="onProductoSelect"
         />
-        <ul v-if="showSuggestions" class="suggestions">
-          <li v-for="p in suggestions" :key="p.id">
-            <button type="button" @click="addProducto(p)">{{ p.nombre }} <small class="muted">— id: {{ p.id }}</small></button>
-          </li>
-          <li v-if="suggestions.length === 0" class="no-results">No se encontraron productos</li>
-        </ul>
       </div>
 
       <!-- Lista de detalles seleccionados (productos de la venta) -->
@@ -83,25 +73,26 @@ import DetalleVentaCrearDTO from '@/models/DetalleVentaCrearDTO'
 import VentaResponseDTO from '@/models/VentaResponseDTO'
 import { VentaProvider } from '@/providers/VentaProvider'
 import { ProductoProvider } from '@/providers/ProductoProvider'
-import ProductosSelector from '@/components/ProductosSelector.vue'
+import { fetchMetodosPago } from '@/providers/MetodoPagoProvider'
+import { fetchEstadosVenta } from '@/providers/EstadoVentaProvider'
+import ProductoSelector from '@/components/ProductoSelector.vue'
 import VentaSummary from '@/components/VentaSummary.vue'
 
 export default {
   name: 'VentaForm',
-  components: { ProductosSelector, VentaSummary },
+  components: { ProductoSelector, VentaSummary },
   data() {
     return {
       ventaCrear: new VentaCrearDTO(),
       detallesSeleccionados: [],
-      productos: [], // catálogo cargado inicialmente
-      metodosPago: [], // [{id, nombre}]
-      estadosVenta: [], // [{id, nombre}]
-      productoQuery: '',
-      suggestions: [],
+      productos: [], // se mantiene para compatibilidad si se necesita
+      metodosPago: [],
+      estadosVenta: [],
+      // seleccionado desde el componente ProductoSelector
+      selectedProducto: null,
       loading: false,
       error: null,
-      ventaCreada: null,
-      searchTimer: null
+      ventaCreada: null
     }
   },
   created() {
@@ -110,89 +101,61 @@ export default {
     this.loadEstadosVenta()
   },
   methods: {
-    // Carga inicial de productos (para selector local)
+    // Carga inicial de productos (opcional, para fallback local si quieres)
     async loadProductos() {
       try {
         const data = await ProductoProvider.listarParaSelector()
         this.productos = Array.isArray(data) ? data : []
       } catch (e) {
-        // fallback: dejar array vacío pero no bloquear la UI
         console.error('Error cargando productos:', e)
         this.productos = []
       }
     },
 
-    // Intenta cargar métodos de pago desde provider, si no existe usa fallback
+    // carga métodos de pago usando el provider específico
     async loadMetodosPago() {
-      if (typeof ProductoProvider.listarMetodosPago === 'function') {
-        try {
-          this.metodosPago = await ProductoProvider.listarMetodosPago()
-          return
-        } catch (e) {
-          console.warn('listarMetodosPago falló, usando fallback', e)
-        }
-      }
-      // fallback local (ajusta los ids/nombres según tu sistema)
-      this.metodosPago = [
-        { id: 1, nombre: 'Efectivo' },
-        { id: 2, nombre: 'Tarjeta' },
-        { id: 3, nombre: 'Transferencia' }
-      ]
-    },
-
-    // Carga posibles estados de venta
-    async loadEstadosVenta() {
-      if (typeof ProductoProvider.listarEstadosVenta === 'function') {
-        try {
-          this.estadosVenta = await ProductoProvider.listarEstadosVenta()
-          return
-        } catch (e) {
-          console.warn('listarEstadosVenta falló, usando fallback', e)
-        }
-      }
-      this.estadosVenta = [
-        { id: 1, nombre: 'Pendiente' },
-        { id: 2, nombre: 'Confirmada' },
-        { id: 3, nombre: 'Cancelada' }
-      ]
-    },
-
-    // Debounce simple para no lanzar búsquedas a cada tecla
-    onQueryInput() {
-      clearTimeout(this.searchTimer)
-      const term = this.productoQuery && this.productoQuery.trim()
-      if (!term) {
-        this.suggestions = []
-        return
-      }
-      this.searchTimer = setTimeout(() => {
-        this.searchProductos(term)
-      }, 250)
-    },
-
-    // Busca productos: intenta provider.buscar(term) si existe, si no filtra localmente
-    async searchProductos(term) {
-      const byId = /^\d+$/.test(term)
       try {
-        if (typeof ProductoProvider.buscar === 'function') {
-          const res = await ProductoProvider.buscar(term)
-          this.suggestions = Array.isArray(res) ? res : []
-          return
-        }
+        const token = localStorage.getItem('token') || null
+        const data = await fetchMetodosPago(token)
+        this.metodosPago = (data || []).map(item => ({
+          id: item.id ?? item.idMetodoPago ?? item.id_metodo_pago,
+          nombre: item.nombre ?? item.descripcion ?? item.descripcionMetodoPago ?? item.nombreMetodoPago
+        }))
       } catch (e) {
-        console.warn('ProductoProvider.buscar falló, usando filtrado local', e)
+        console.error('Error cargando métodos de pago:', e)
+        this.metodosPago = [
+          { id: 1, nombre: 'Efectivo' },
+          { id: 2, nombre: 'Tarjeta' },
+          { id: 3, nombre: 'Transferencia' }
+        ]
       }
-
-      // Filtrado local: por id exacto o por nombre contiene
-      const q = term.toLowerCase()
-      this.suggestions = this.productos.filter(p => {
-        if (byId) return String(p.id) === term
-        return (p.nombre || '').toLowerCase().includes(q) || (String(p.id) || '').includes(q)
-      }).slice(0, 12)
     },
 
-    // Añadir producto a detalles (si ya existe incrementa cantidad)
-    addProducto(producto) {
+    // carga estados de venta usando el provider específico
+    async loadEstadosVenta() {
+      try {
+        const token = localStorage.getItem('token') || null
+        const data = await fetchEstadosVenta(token)
+        this.estadosVenta = (data || []).map(item => ({
+          id: item.id ?? item.idEstadoVenta ?? item.id_estado_venta,
+          nombre: item.nombre ?? item.observacion ?? item.descripcion
+        }))
+      } catch (e) {
+        console.error('Error cargando estados de venta:', e)
+        this.estadosVenta = [
+          { id: 1, nombre: 'Pendiente' },
+          { id: 2, nombre: 'Confirmada' },
+          { id: 3, nombre: 'Cancelada' }
+        ]
+      }
+    },
+
+    /**
+     * Handler cuando el usuario selecciona un producto desde ProductoSelector.
+     * Agrega el producto a detallesSeleccionados (si no existe) o incrementa cantidad.
+     */
+    onProductoSelect(producto) {
+      if (!producto) return
       const existe = this.detallesSeleccionados.find(d => d.productoId === producto.id)
       if (existe) {
         existe.cantidad = Number(existe.cantidad) + 1
@@ -201,21 +164,24 @@ export default {
           productoId: producto.id,
           cantidad: 1,
           nombreProducto: producto.nombre,
-          descripcion: producto.descripcion
+          descripcion: producto.descripcion ?? ''
         })
         this.detallesSeleccionados.push(nuevo)
       }
-      // limpiar sugerencias y query para UX
-      this.productoQuery = ''
-      this.suggestions = []
+      // limpiar selección visible en el selector
+      this.selectedProducto = null
+    },
+
+    // Métodos previos adaptados
+    addProducto(producto) {
+      // compatibilidad: si en algún lugar aún se llama a addProducto
+      this.onProductoSelect(producto)
     },
 
     onAddDetalleById(productoId) {
-      // compatibilidad con emision desde ProductosSelector
       const producto = this.productos.find(p => p.id === productoId)
-      if (producto) this.addProducto(producto)
+      if (producto) this.onProductoSelect(producto)
       else {
-        // si no está en catálogo, añadir con id y cantidad 1
         this.detallesSeleccionados.push(new DetalleVentaCrearDTO({ productoId, cantidad: 1 }))
       }
     },
@@ -243,6 +209,11 @@ export default {
 
       if (!this.ventaCrear.isValid()) {
         this.error = 'Revisa los campos obligatorios y las cantidades'
+        return
+      }
+
+      if (this.ventaCrear.detalles.length === 0) {
+        this.error = 'Agrega al menos un producto a la venta'
         return
       }
 
@@ -274,14 +245,12 @@ export default {
 </script>
 
 <style scoped>
-
 .h3 {
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 /* estilos mínimos para que la UI sea usable; los dejaremos para pulir al final */
 .field { margin-bottom: 1rem; }
 .field label { display:block; font-weight:600; margin-bottom:0.25rem; }
@@ -297,7 +266,7 @@ export default {
 .btn-link { background:transparent; border:0; color:#c33; cursor:pointer; }
 .muted { color:#777; font-size:0.9rem; }
 .actions { margin-top:1rem; }
-.actions button { padding:0.6rem 1rem; border-radius:6px; background:#2b8aef; color:#fff; border:0; cursor:pointer; }
+.actions button { padding:0.6rem 1rem; border-radius:6px; background:#ff8826; color:#fff; border:0; cursor:pointer; }
 .error { color:#b00020; margin-top:0.75rem; }
 </style>
 

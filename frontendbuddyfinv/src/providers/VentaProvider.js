@@ -1,11 +1,11 @@
-// src/services/ventasProvider.js
-import { crearVentaDTO } from '../models/VentaDTO.js' // conserva si lo usas en algún lugar; si no, puedes eliminar esta importación
+import { crearVentaDTO } from '../models/VentaDTO.js' // conserva si lo usas en algún lugar
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 const VENTAS_BASE = `${API_BASE_URL}/ventas`
+const METODOS_BASE = `${API_BASE_URL}/MetodoPago`
+const ESTADOS_BASE = `${API_BASE_URL}/EstadoVenta/estados`
 
 async function handleResponse(response) {
-  // normaliza la respuesta y lanza errores con información útil
   if (!response.ok) {
     const text = await response.text().catch(() => '')
     const contentType = response.headers.get('content-type') || ''
@@ -32,16 +32,15 @@ async function handleResponse(response) {
 }
 
 function authHeaders() {
-  // cambia la lectura del token si lo guardas en Vuex/Pinia en vez de localStorage
   const token = localStorage.getItem('token')
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 export const VentaProvider = {
+  // ventas
   async getDetalladas() {
     const token = localStorage.getItem('token')
     if (!token) throw new Error('Token no disponible')
-
     const res = await fetch(`${VENTAS_BASE}/detalladas`, {
       method: 'GET',
       headers: {
@@ -49,7 +48,6 @@ export const VentaProvider = {
         'Content-Type': 'application/json'
       }
     })
-
     return handleResponse(res)
   },
 
@@ -79,6 +77,29 @@ export const VentaProvider = {
 
   async obtenerVenta(id) {
     const res = await fetch(`${VENTAS_BASE}/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders()
+      }
+    })
+    return handleResponse(res)
+  },
+
+  // catálogos reutilizables: métodos de pago y estados de venta
+  async fetchMetodosPago() {
+    const res = await fetch(METODOS_BASE, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders()
+      }
+    })
+    return handleResponse(res)
+  },
+
+  async fetchEstadosVenta() {
+    const res = await fetch(ESTADOS_BASE, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

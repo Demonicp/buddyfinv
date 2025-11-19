@@ -43,6 +43,39 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     Optional<Producto> findByIdProductoAndPropietarioId(Long idProducto, Long propietarioId);
 
+    @Query(value =
+       "select p.id_producto " +
+       "from productos p " +
+       "where (p.id_producto::text = :q) or (p.nombre ilike concat('%', :q, '%')) " +
+       "order by (p.nombre ilike concat(:q, '%')) desc, p.nombre " +
+       "limit :limit",
+       nativeQuery = true)
+    List<Long> searchIdsByQ(@Param("q") String q, @Param("limit") int limit);
+
+    /**
+     * Trae productos con sus relaciones necesarias para mapeo (evita N+1).
+     * Usar después de searchIdsByQ para obtener datos completos respetando limit/orden.
+     */
+    @Query("select distinct p from Producto p "
+         + "left join fetch p.propietario prop "
+         + "left join fetch p.tipoProducto tp "
+         + "left join fetch p.estadoProducto ep "
+         + "left join fetch p.detalleInventarios di "
+         + "where p.idProducto in :ids")
+    List<Producto> findWithRelationsByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * Trae un producto con relaciones (para búsqueda por id).
+     */
+    @Query("select p from Producto p "
+         + "left join fetch p.propietario prop "
+         + "left join fetch p.tipoProducto tp "
+         + "left join fetch p.estadoProducto ep "
+         + "left join fetch p.detalleInventarios di "
+         + "where p.idProducto = :id")
+    Optional<Producto> findWithRelationsById(@Param("id") Long id);
+
+
 
 
 }
