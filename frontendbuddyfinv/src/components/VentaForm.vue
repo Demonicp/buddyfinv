@@ -69,8 +69,11 @@
           :key="d.productoId || idx"
         >
           <div class="detalle-info">
-            <strong>{{ d.nombreProducto || d.productoId }}</strong>
+            <strong>{{ d.nombreProducto || d.nombre || ('Producto ' + d.productoId) }}</strong>
             <div class="muted">{{ d.descripcion || '' }}</div>
+            <div class="muted" v-if="d.precioUnitario !== undefined">
+              <small>Precio unitario: {{ formatPrecio(d.precioUnitario) }}</small>
+            </div>
             <div class="helper" v-if="fieldErrors[`producto_${idx}`]">{{ fieldErrors[`producto_${idx}`] }}</div>
           </div>
 
@@ -93,20 +96,19 @@
         </div>
       </div>
 
-      <!-- Acciones: abrir modal de confirmación (simulación previa) -->
+      <!-- Acciones: cancelar y crear -->
       <div class="actions">
         <button type="button" class="btn-secondary" @click="onCancel" :disabled="loading">Cancelar</button>
-        <button type="button" @click="openConfirmModal" :disabled="loading" class="btn-primary">
+        <button type="button" class="btn-primary" @click="openConfirmModal" :disabled="loading">
           <span v-if="loading">Procesando...</span>
           <span v-else>Crear Venta</span>
         </button>
       </div>
 
-
       <div v-if="error" class="error" role="alert">{{ error }}</div>
     </form>
 
-    <!-- Modal de confirmación con preview (usa previewItems, previewSubtotal, previewTotal) -->
+    <!-- Modal de confirmación con preview -->
     <div v-if="showConfirmModal" class="modal-backdrop" role="dialog" aria-modal="true">
       <div class="modal" role="document">
         <header class="modal-header">
@@ -120,9 +122,9 @@
             <p><strong>Cliente:</strong> {{ ventaCrear.cliente }}</p>
             <p><strong>Método de pago:</strong> {{ metodoPagoNombre }}</p>
             <p><strong>Estado:</strong> {{ estadoVentaNombre }}</p>
-            <p v-if="attendantId || ventaCrear.atendidoPorId"><strong>Atendido por (ID):</strong> {{ ventaCrear.atendidoPorId || attendantId }}</p>
+            <p v-if="attendantId || ventaCrear.atendidoPorId"><strong>ID Empleado:</strong> {{ ventaCrear.atendidoPorId || attendantId }}</p>
 
-            <h4></h4>
+            <h4>Productos </h4>
             <div v-if="previewItems.length === 0" class="muted">No hay productos para previsualizar</div>
 
             <table v-else class="confirm-table">
@@ -161,10 +163,10 @@
 
           <!-- CREATED: después de crear la venta -->
           <div v-else>
-            <p><strong>ID Venta:</strong> {{ ventaCreada.idVenta || ventaCreada.id }}</p>
+            <p><strong>ID:</strong> {{ ventaCreada.idVenta || ventaCreada.id }}</p>
             <p><strong>Cliente:</strong> {{ ventaCreada.cliente || ventaCrear.cliente }}</p>
             <p><strong>Fecha:</strong> {{ ventaCreada.fecha || ventaCreada.createdAt || ventaCreada.fechaCreacion }}</p>
-            <p v-if="ventaCreada.atendidoPorId || attendantId"><strong>Atendido por :</strong> {{ ventaCreada.atendidoPorId || attendantId }}</p>
+            <p v-if="ventaCreada.atendidoPorId || attendantId"><strong>Atendido por (ID):</strong> {{ ventaCreada.atendidoPorId || attendantId }}</p>
             <p><strong>Total:</strong> {{ formatPrecio(ventaCreada.total || previewTotal) }}</p>
 
             <h4>Productos</h4>
@@ -202,7 +204,7 @@
             <button type="button" class="btn-secondary" @click="cancelConfirm" :disabled="confirmLoading">Cancelar</button>
             <button type="button" class="btn-primary" @click="confirmCreate" :disabled="confirmLoading">
               <span v-if="confirmLoading">Confirmando...</span>
-              <span v-else>Confirmar</span>
+              <span v-else>Confirmar y crear</span>
             </button>
           </template>
 
@@ -214,8 +216,14 @@
     </div>
 
     <!-- Resumen final (opcional) -->
-    <div class="tableresumen">
     <venta-summary v-if="ventaCreada" :venta="ventaCreada" />
+
+    <!-- Toast centrado (aparece en el medio de la pantalla) -->
+    <div v-if="showSuccessToast" class="success-toast-center" role="status" aria-live="polite">
+      <div class="toast-inner">
+        <strong class="toast-title">¡Venta registrada!</strong>
+        <div class="toast-text">{{ successMessage }}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -233,7 +241,6 @@ import VentaSummary from '@/components/VentaSummary.vue'
 
 /**
  * Decodifica el payload de un JWT (base64url) y devuelve el id del usuario si existe.
- * Intenta devolver payload.idUsuario, payload.id o null.
  */
 function getUserIdFromToken() {
   try {
@@ -242,17 +249,13 @@ function getUserIdFromToken() {
     const parts = token.split('.')
     if (parts.length < 2) return null
     const payloadBase64 = parts[1]
-    // Normalizar base64url a base64 estándar
     const normalized = payloadBase64.replace(/-/g, '+').replace(/_/g, '/')
-    // Añadir padding si hace falta
     const pad = normalized.length % 4
     const padded = pad ? normalized + '='.repeat(4 - pad) : normalized
     const json = atob(padded)
     const payload = JSON.parse(json)
     return payload.idUsuario ?? payload.id ?? null
   } catch (error) {
-    // No loguear en producción; útil en desarrollo
-    // console.error('Error al decodificar token:', error)
     return null
   }
 }
@@ -281,15 +284,20 @@ export default {
       ventaCreada: null,
 
       // preview calculada consultando productos por id
-      previewItems: [],        // [{ productoId, nombre, cantidad, precioUnitario, subtotal, error? }]
+      previewItems: [],
       previewSubtotal: 0,
       previewTotal: 0,
 
       // cache local para evitar múltiples fetchs del mismo producto
       _productoCache: {},
 
-      // id del usuario/atendedor actual (se muestra en preview y en la venta creada)
-      attendantId: null
+      // id del usuario/atendedor actual
+      attendantId: null,
+
+      // toast de éxito (centrado)
+      showSuccessToast: false,
+      successMessage: '',
+      _successToastTimer: null
     }
   },
   created() {
@@ -297,10 +305,10 @@ export default {
     this.loadMetodosPago()
     this.loadEstadosVenta()
 
-    // obtener id del token y asignar al estado y al DTO inicial
+    // obtener id del token y asignar al DTO inicial
     this.attendantId = getUserIdFromToken()
     if (this.attendantId) {
-      try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) { /* ignore */ }
+      try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) {}
     }
   },
   computed: {
@@ -314,6 +322,55 @@ export default {
     }
   },
   methods: {
+        // 1) helper: asegura que tengamos nombre y precio para un productoId
+    async ensureDetalleInfo(productoId) {
+      if (!productoId) return { nombre: null, precioUnitario: 0 }
+
+      // si está en cache, devolverlo
+      const cached = this._productoCache[productoId]
+      if (cached) {
+        return {
+          nombre: cached.nombre ?? cached.nombreProducto ?? cached.title ?? `Producto ${productoId}`,
+          precioUnitario: Number(cached.precio ?? cached.precioUnitario ?? cached.price ?? 0)
+        }
+      }
+
+      // si no está en cache, consultamos al provider
+      try {
+        const productoData = await ProductoProvider.buscarPorId(productoId)
+        // guardar en cache para futuras consultas
+        this._productoCache[productoId] = productoData || {}
+        return {
+          nombre: productoData?.nombre ?? productoData?.nombreProducto ?? productoData?.title ?? `Producto ${productoId}`,
+          precioUnitario: Number(productoData?.precio ?? productoData?.precioUnitario ?? productoData?.price ?? 0)
+        }
+      } catch (err) {
+        // en caso de error devolvemos valores por defecto
+        return { nombre: `Producto ${productoId} (no disponible)`, precioUnitario: 0 }
+      }
+    },
+    /* ---------- Toast éxito ---------- */
+    showSuccess(message = 'Venta registrada correctamente.', duration = 3000) {
+      if (this._successToastTimer) {
+        clearTimeout(this._successToastTimer)
+        this._successToastTimer = null
+      }
+      this.successMessage = message
+      this.showSuccessToast = true
+      this._successToastTimer = setTimeout(() => {
+        this.showSuccessToast = false
+        this._successToastTimer = null
+      }, duration)
+    },
+    hideSuccessToast() {
+      if (this._successToastTimer) {
+        clearTimeout(this._successToastTimer)
+        this._successToastTimer = null
+      }
+      this.showSuccessToast = false
+      this.successMessage = ''
+    },
+
     /* ---------- helpers de errores ---------- */
     setFieldError(field, message = true) {
       this.fieldErrors = { ...this.fieldErrors, [field]: message }
@@ -326,38 +383,10 @@ export default {
     clearAllFieldErrors() {
       this.fieldErrors = {}
     },
-    onCancel() {
-      const hasData =
-        (this.ventaCrear && (this.ventaCrear.cliente && String(this.ventaCrear.cliente).trim() !== '')) ||
-        (Array.isArray(this.detallesSeleccionados) && this.detallesSeleccionados.length > 0)
-
-      if (hasData) {
-        const ok = window.confirm('Hay datos sin guardar. ¿Seguro que quieres cancelar y volver a Acciones?')
-        if (!ok) return
-      }
-
-      // Intentamos navegar por nombre de ruta 'acciones' (según tu router)
-      try {
-        if (this.$router && this.$router.push) {
-          // preferimos ir a la ruta padre 'acciones'
-          this.$router.push({ name: 'acciones' }).catch(() => {
-            // si falla (por ejemplo ya estamos ahí), intentamos volver en el historial
-            if (this.$router && this.$router.back) this.$router.back()
-          })
-        } else {
-          // fallback: history.back()
-          window.history.back()
-        }
-      } catch (e) {
-        // fallback final
-        window.history.back()
-      }
-    },
 
     /* ---------- cargas iniciales ---------- */
     async loadProductos() {
       try {
-        // listarParaSelector espera q; pasamos q vacío para evitar resultados no deseados
         const data = await ProductoProvider.listarParaSelector({ q: '' })
         this.productos = Array.isArray(data) ? data : []
       } catch (e) {
@@ -403,19 +432,30 @@ export default {
     },
 
     /* ---------- selector de productos ---------- */
-    onProductoSelect(producto) {
+    async onProductoSelect(producto) {
       if (!producto) return
       const existe = this.detallesSeleccionados.find(d => d.productoId === producto.id)
       if (existe) {
         existe.cantidad = Number(existe.cantidad || 0) + 1
       } else {
-        const precioFromProducto = producto.precio ?? producto.precioUnitario ?? producto.precio_unitario ?? 0
+        // intentar obtener nombre/precio del objeto producto; si faltan, rellenar con ensureDetalleInfo
+        let nombre = producto.nombre ?? producto.nombreProducto ?? ''
+        let precio = producto.precio ?? producto.precioUnitario ?? producto.price ?? 0
+
+        if (!nombre || !precio) {
+          try {
+            const info = await this.ensureDetalleInfo(producto.id)
+            nombre = nombre || info.nombre
+            precio = precio || info.precioUnitario
+          } catch (e) { /* ignore */ }
+        }
+
         const nuevo = new DetalleVentaCrearDTO({
           productoId: producto.id,
           cantidad: 1,
-          nombreProducto: producto.nombre,
+          nombreProducto: nombre,
           descripcion: producto.descripcion ?? '',
-          precioUnitario: Number(precioFromProducto || 0)
+          precioUnitario: Number(precio || 0)
         })
         this.detallesSeleccionados.push(nuevo)
       }
@@ -427,12 +467,42 @@ export default {
       this.onProductoSelect(producto)
     },
 
-    onAddDetalleById(productoId) {
+    async onAddDetalleById(productoId) {
       const producto = this.productos.find(p => p.id === productoId)
-      if (producto) this.onProductoSelect(producto)
-      else {
-        this.detallesSeleccionados.push(new DetalleVentaCrearDTO({ productoId, cantidad: 1 }))
-        this.clearFieldError('detalles')
+      if (producto) {
+        this.onProductoSelect(producto)
+        return
+      }
+
+      // crear detalle provisional con id
+      const nuevo = new DetalleVentaCrearDTO({ productoId, cantidad: 1 })
+      this.detallesSeleccionados.push(nuevo)
+      this.clearFieldError('detalles')
+
+      // rellenar nombre y precio de forma asíncrona
+      try {
+        const info = await this.ensureDetalleInfo(productoId)
+        // buscar el detalle recién añadido (último con ese id)
+        const idx = this.detallesSeleccionados.findIndex(d => d.productoId === productoId && !d.nombreProducto)
+        if (idx !== -1) {
+          // Actualizar directamente las propiedades del objeto reactivo
+          const existing = this.detallesSeleccionados[idx]
+          try {
+            existing.nombreProducto = info.nombre
+            existing.precioUnitario = info.precioUnitario
+            // forzar reactividad en caso de que el framework no detecte la asignación
+            this.detallesSeleccionados.splice(idx, 1, existing)
+          } catch (e) {
+            // fallback: reemplazar el elemento
+            this.detallesSeleccionados.splice(idx, 1, {
+              ...this.detallesSeleccionados[idx],
+              nombreProducto: info.nombre,
+              precioUnitario: info.precioUnitario
+            })
+          }
+        }
+      } catch (e) {
+        // no bloquear UI; ya mostramos fallback en ensureDetalleInfo
       }
     },
 
@@ -578,7 +648,7 @@ export default {
       // refrescar attendantId desde el token por si cambió
       this.attendantId = getUserIdFromToken() ?? this.attendantId
       if (this.attendantId) {
-        try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) { /* ignore */ }
+        try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) {}
       }
 
       try {
@@ -603,9 +673,8 @@ export default {
     /* ---------- reset del formulario para iniciar nueva venta (mantener attendantId) ---------- */
     resetFormAfterCreate() {
       this.ventaCrear = new VentaCrearDTO()
-      // reasignar el id del atendedor a la nueva instancia para la siguiente venta
       if (this.attendantId) {
-        try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) { /* ignore */ }
+        try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) {}
       }
       this.detallesSeleccionados = []
       this.previewItems = []
@@ -624,7 +693,7 @@ export default {
         // refrescar y asignar id del atendedor justo antes de enviar
         this.attendantId = getUserIdFromToken() ?? this.attendantId
         if (this.attendantId) {
-          try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) { /* ignore */ }
+          try { this.ventaCrear.atendidoPorId = this.attendantId } catch (e) {}
         }
 
         // preparar detalles en ventaCrear usando previewItems para asegurar precios
@@ -668,15 +737,27 @@ export default {
 
         // incluir id del atendedor en la respuesta mostrada si no viene del backend
         if (!this.ventaCreada.atendidoPorId && this.attendantId) {
-          try { this.ventaCreada.atendidoPorId = this.attendantId } catch (e) { /* ignore */ }
+          try { this.ventaCreada.atendidoPorId = this.attendantId } catch (e) {}
         }
 
         if (this.ventaCreada && (this.ventaCreada.idVenta || this.ventaCreada.id)) {
           this.$emit('created', this.ventaCreada.idVenta || this.ventaCreada.id)
         }
 
-        // limpiar formulario para iniciar nueva venta, pero mantener ventaCreada para mostrar resumen
+        // mostrar toast de éxito centrado
+        this.showSuccess('Venta registrada correctamente.')
+
+        // cerrar modal y limpiar todo para iniciar nueva venta inmediatamente
+        this.showConfirmModal = false
         this.resetFormAfterCreate()
+        // limpiar cualquier rastro de summary o preview que impida iniciar nueva venta
+        this.ventaCreada = null
+        this.selectedProducto = null
+        this.previewItems = []
+        this.previewSubtotal = 0
+        this.previewTotal = 0
+        this.confirmError = null
+
       } catch (e) {
         try {
           if (e && e.body) {
@@ -711,6 +792,30 @@ export default {
       } finally {
         this.confirmLoading = false
       }
+    },
+
+    /* ---------- cancelar y volver a Acciones ---------- */
+    onCancel() {
+      const hasData =
+        (this.ventaCrear && (this.ventaCrear.cliente && String(this.ventaCrear.cliente).trim() !== '')) ||
+        (Array.isArray(this.detallesSeleccionados) && this.detallesSeleccionados.length > 0)
+
+      if (hasData) {
+        const ok = window.confirm('Hay datos sin guardar. ¿Seguro que quieres cancelar y volver a Acciones?')
+        if (!ok) return
+      }
+
+      try {
+        if (this.$router && this.$router.push) {
+          this.$router.push({ name: 'acciones' }).catch(() => {
+            if (this.$router && this.$router.back) this.$router.back()
+          })
+        } else {
+          window.history.back()
+        }
+      } catch (e) {
+        window.history.back()
+      }
     }
   }
 }
@@ -718,98 +823,23 @@ export default {
 
 <style scoped>
 /* ---------------------------
-   Base layout / fuente
+   VentaForm - tema naranja / negro
    --------------------------- */
-.venta-form,
-.venta-wrapper {
-  width: 100%;
-  max-width: 100vw;
-
+.venta-form {
+  width: 90%;
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 20px;
+  background: linear-gradient(180deg,#fffaf3 0%, #fff 100%);
+  border-radius: 14px;
+  border: 1px solid #f5cba7;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
   font-family: 'Segoe UI', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color: #111; /* texto principal en negro */
+  color: #111;
   box-sizing: border-box;
 }
 
-/* Card visual (fondo suave, borde naranja claro) */
-.venta-card,
-.venta-form {
-  background: #fffaf3;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: inset 0 0 0 2px #f8c471;
-  border: 1px solid #f5cba7;
-}
-
-/* Título (si lo usas) */
-.venta-title {
-  text-align: center;
-  color: #e67e22;
-  margin-bottom: 18px;
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-/* ---------------------------
-   Botones (estética naranja / contrastes)
-   --------------------------- */
-.btn,
-button.btn,
-button.btn-primary,
-.btn-primary {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 10px;
-  font-weight:bold; /* negrita fuerte */
-  font-size: large;
-  cursor: pointer;
-  transition: background-color 0.18s ease, transform 0.12s ease;
-  letter-spacing: 0.3px;
-
-}
-
-
-
-/* Primario: naranja degradado */
-.btn-primary,
-button.btn-primary {
-  background: linear-gradient(180deg,#f39c12,#e67e22);
-  
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(230,126,34,0.12);
-}
-.btn-primary:hover { transform: translateY(-1px); }
-
-/* Secundario: borde naranja claro */
-.btn-secondary,
-button.btn-secondary {
-  padding: 8px 16px;
-  background: transparent;
-  border: 1px solid #f5cba7;
-  color: #4d2c0c;
-  border-radius: 10px;
-  letter-spacing: 0.3px;
-  font-weight:bold; /* negrita fuerte */
-  font-size: large;
-  cursor: pointer;
-  
-}
-
-/* Link / eliminar */
-.btn-link,
-button.btn-link {
-  background: transparent;
-  border: 0;
-  color: #e67e22;
-  font-weight: 700;
-}
-
-/* Botones de acción alternativos */
-.btn.limpiar { background-color: #e74c3c; color: #fff; border-radius: 18px; }
-.btn.consultar { background-color: #3498db; color: #fff; border-radius: 18px; }
-
-/* ---------------------------
-   Form fields
-   --------------------------- */
+/* Fields */
 .field {
   margin-bottom: 14px;
   display: flex;
@@ -817,7 +847,7 @@ button.btn-link {
   gap: 6px;
 }
 .field label {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.95rem;
   color: #111;
 }
@@ -831,16 +861,16 @@ button.btn-link {
   border-radius: 10px;
   background: #fff;
   font-size: 0.95rem;
-  transition: border-color .12s ease, box-shadow .12s ease;
-  box-sizing: border-box;
   color: #111;
+  transition: border-color .12s ease, box-shadow .12s ease, transform .06s ease;
+  box-sizing: border-box;
 }
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   outline: none;
   border-color: #e67e22;
-  box-shadow: 0 0 0 6px rgba(246, 187, 66, 0.08);
+  box-shadow: 0 0 0 8px rgba(246,187,66,0.06);
 }
 .field input.invalid,
 .field select.invalid,
@@ -849,18 +879,21 @@ button.btn-link {
   box-shadow: 0 0 0 6px rgba(211,47,47,0.06);
 }
 
-/* Helper / errores */
+/* Helper / error */
 .helper {
   color: #c0392b;
   font-size: 0.88rem;
   margin-top: 6px;
 }
 
-/* ---------------------------
-   Lista de detalles / filas
-   --------------------------- */
+/* Detalles list */
 .detalles {
   margin-top: 12px;
+}
+.detalles h4 {
+  margin: 0 0 8px 0;
+  font-weight: 800;
+  color: #111;
 }
 .detalle-row {
   display: flex;
@@ -871,7 +904,7 @@ button.btn-link {
   background: linear-gradient(180deg,#fff,#fffaf3);
   border: 1px solid #f5e0c8;
   margin-bottom: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 .detalle-info { flex: 1; min-width: 0; }
 .detalle-info strong { display: block; font-weight: 800; color: #111; }
@@ -886,97 +919,106 @@ button.btn-link {
 }
 .detalle-actions { white-space: nowrap; }
 
-/* ---------------------------
-   Scroll personalizado
-   --------------------------- */
-.venta-scroll {
-  max-height: 520px;
-  overflow-y: auto;
-  padding-right: 8px;
-  scrollbar-color: #f8c471 transparent;
-  scrollbar-width: thin;
-}
-.venta-scroll::-webkit-scrollbar { width: 8px; }
-.venta-scroll::-webkit-scrollbar-track { background: transparent; }
-.venta-scroll::-webkit-scrollbar-thumb {
-  background-color: #f8c471;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+/* Actions: separación entre botones */
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px; /* separación solicitada */
+  justify-content: flex-end;
 }
 
-/* ---------------------------
-   Tablas: estilo general inspirado en tu CSS
-   --------------------------- */
-.detalle-table,
-.confirm-table,
-.venta-table {
-  width: 100%;
+/* Botones */
+.btn,
+button {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .12s ease;
+  font-family: inherit;
+  border: 0;
+}
+button[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+/* Primario: naranja */
+.btn-primary,
+button.btn-primary {
+  background: linear-gradient(180deg,#f39c12,#e67e22);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(230,126,34,0.12);
+}
+.btn-primary:hover { transform: translateY(-2px); }
+
+/* Secundario: borde naranja claro */
+.btn-secondary,
+button.btn-secondary {
+  background: transparent;
+  border: 1px solid #f5cba7;
+  color: #4d2c0c;
+  padding: 10px 14px;
+}
+.btn-link {
+  background: transparent;
+  border: 0;
+  color: #e67e22;
+  font-weight: 800;
+}
+
+/* Error / mensajes */
+.error {
+  color: #b00020;
+  margin-top: 10px;
+  font-weight: 700;
+}
+.muted { color: #777; font-size: 0.92rem; }
+
+/* Tablas de confirmación / preview */
+.confirm-table{
   border-collapse: separate;
   border-spacing: 0;
   margin-top: 12px;
-  background: #fff;
+  background: #ffffff;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
-  font-family: inherit;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  width: 100%;
+  
 }
+.detalle-table {
 
-/* Encabezado */
-.detalle-table thead th,
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  width: bold;
+}
 .confirm-table thead th,
-.venta-table .table-header {
-  background: #f8c471;
+.detalle-table thead th {
+  background: linear-gradient(180deg,#f8c471,#f5cba7);
   color: #4d2c0c;
   padding: 12px 14px;
   text-align: left;
   font-size: 13px;
   font-weight: 800;
 }
-
-/* Celdas */
-.detalle-table td,
 .confirm-table td,
-.venta-table .table-row > * {
+.detalle-table td {
   padding: 12px 14px;
   font-size: 13px;
   color: #111;
   border-top: 1px solid #f0e6d6;
+  background: linear-gradient(180deg,#fff,#fffaf3);
 }
-
-/* Filas alternas y hover */
-.venta-table .table-row,
-.confirm-table tbody tr {
-  background: #fdf6ec;
-  transition: background .12s ease, transform .08s ease;
-}
-.venta-table .table-row:nth-child(even),
-.confirm-table tbody tr:nth-child(even) {
-  background: #faebd7;
-}
-.venta-table .table-row:hover,
-.confirm-table tbody tr:hover {
-  background: #f5cba7;
-  transform: translateY(-2px);
-}
-
-/* Alineaciones */
 .td-right { text-align: right; }
 .td-center { text-align: center; }
-.td-name {
-  max-width: 420px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Totales */
+.td-name { max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .td-total-label { text-align: right; font-weight: 800; padding-right: 12px; color: #111; }
 .td-total { font-weight: 900; color: #e67e22; }
 
-/* ---------------------------
-   Modal (encapsulado con bordes naranjas)
-   --------------------------- */
+/* Modal */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1001,38 +1043,69 @@ button.btn-link {
   box-shadow: 0 30px 60px rgba(0,0,0,0.18);
 }
 .modal-header { padding: 14px 18px; border-bottom: 1px solid #f0e6d6; }
-.modal-header h3 { margin: 0; font-size: 1.05rem; color: #111; }
+.modal-header h3 { margin: 0; font-size: 1.05rem; color: #111; font-weight: 800; }
 .modal-body { padding: 16px 18px; max-height: 68vh; overflow: auto; }
 .modal-footer { padding: 12px 18px; border-top: 1px solid #f0e6d6; display: flex; gap: 10px; justify-content: flex-end; }
 
-/* ---------------------------
-   Mensajes y estados
-   --------------------------- */
-.muted { color: #777; font-size: 0.92rem; }
-.error { color: #b00020; margin-top: 10px; font-weight: 700; }
+/* Scroll personalizado */
+.venta-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-color: #f8c471 transparent;
+  scrollbar-width: thin;
+}
+.venta-scroll::-webkit-scrollbar { width: 8px; }
+.venta-scroll::-webkit-scrollbar-thumb { background-color: #f8c471; border-radius: 6px; }
 
 /* ---------------------------
-   Animaciones y transiciones
+   Toast centrado (medio de la pantalla)
    --------------------------- */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.28s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-
-.tableresumen {
-  width: 100vw;
-  
-
-
+.success-toast-center {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 320px;
+  max-width: 560px;
+  background: linear-gradient(180deg,#fffaf3,#fff);
+  border: 1px solid #f5cba7;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+  border-radius: 12px;
+  padding: 14px 18px;
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: toastIn .16s ease;
+  text-align: center;
+}
+.toast-inner { min-width: 0; }
+.toast-title {
+  display: block;
+  color: #e67e22;
+  font-weight: 900;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+.toast-text {
+  color: #111;
+  font-size: 0.95rem;
+  line-height: 1.15;
 }
 
+/* Animación */
+@keyframes toastIn {
+  from { transform: translate(-50%, -46%); opacity: 0; }
+  to { transform: translate(-50%, -50%); opacity: 1; }
+}
 
-
-/* ---------------------------
-   Responsive
-   --------------------------- */
-@media (max-width: 720px) {
+/* Responsive */
+@media (max-width: 820px) {
+  .venta-form { width: 94vw; padding: 14px; }
+  .actions { justify-content: center; }
+  .success-toast-center { left: 50%; top: 40%; transform: translate(-50%, -40%); width: calc(100% - 32px); max-width: none; }
   .detalle-row { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .detalle-cantidad input { width: 100%; }
-  .modal { max-width: 96%; }
 }
 
 /* Quitar flechas de input number en webkit */
@@ -1041,9 +1114,4 @@ button.btn-link {
   -webkit-appearance: none;
   margin: 0;
 }
-
-
-
-
-
 </style>

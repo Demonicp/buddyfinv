@@ -252,8 +252,7 @@ public class VentaService {
             }
 
             if (detalleInventario.getCantidadDisponible() < dDto.getCantidad()) {
-                throw new IllegalArgumentException("Stock insuficiente para productoId " + producto.getIdProducto() +
-                        ". Disponibles: " + detalleInventario.getCantidadDisponible());
+                throw new IllegalArgumentException("Stock insuficiente para el producto '" + producto.getNombre() + "'. Disponibles: " + detalleInventario.getCantidadDisponible());
             }
 
             double subtotal = producto.getPrecio() * dDto.getCantidad();
