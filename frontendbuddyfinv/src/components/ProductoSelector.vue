@@ -122,7 +122,22 @@ export default {
 
 <style scoped>
 .producto-selector { position: relative; max-width: 520px; }
-.ps-input { width: 100%; padding: 8px 10px; box-sizing: border-box; }
+.ps-input {
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  background: #fff; /* mantener fondo blanco */
+  border: 1px solid #f5cba7; /* contorno naranja claro */
+  border-radius: 10px; /* esquinas redondeadas */
+  transition: border-color .12s ease, box-shadow .12s ease;
+  font-size: 0.95rem;
+  color: #111;
+}
+.ps-input:focus {
+  outline: none;
+  border-color: #e67e22;
+  box-shadow: 0 0 0 6px rgba(246,187,66,0.08);
+}
 .ps-list { position: absolute; left: 0; right: 0; background: #fff; border: 1px solid #ddd; margin: 0; padding: 0; list-style: none; max-height: 260px; overflow: auto; z-index: 50; }
 .ps-item { padding: 8px 10px; cursor: pointer; border-bottom: 1px solid #f3f3f3; }
 .ps-item:hover { background: #f5f5f5; }

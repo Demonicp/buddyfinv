@@ -20,8 +20,12 @@ export default {
 </script>
 
 <style scoped>
-.crear-venta-wrapper {
-  padding: 1.5rem;
+.crear-venta-title {
+  text-align: center;
+  color: #e67e22;
+  margin-bottom: 20px;
+  font-size: 3rem;
+  font-weight: bold;
 }
 .crear-venta-card {
   background: #fff;

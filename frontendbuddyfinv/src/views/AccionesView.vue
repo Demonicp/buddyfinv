@@ -70,7 +70,7 @@ export default {
 <style scoped>
 .dashboard-content {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 100vw;
   margin: 0 auto;
   font-family: 'Segoe UI', sans-serif;
 }
