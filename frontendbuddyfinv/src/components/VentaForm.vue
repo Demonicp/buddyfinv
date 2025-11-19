@@ -20,30 +20,34 @@
       <!-- Método de pago -->
       <div class="field">
         <label>Método de pago</label>
-        <select
-          v-model="ventaCrear.metodoPagoId"
-          @change="clearFieldError('metodoPagoId')"
-          :class="{ invalid: fieldErrors.metodoPagoId }"
-          aria-invalid="fieldErrors.metodoPagoId ? 'true' : 'false'"
-        >
-          <option value="" disabled>Selecciona método de pago</option>
-          <option v-for="m in metodosPago" :key="m.id" :value="m.id">{{ m.nombre }}</option>
-        </select>
+        <div class="select-wrapper" :data-placeholder="!ventaCrear.metodoPagoId ? 'Selecciona método de pago' : ''">
+          <select
+            v-model="ventaCrear.metodoPagoId"
+            @change="clearFieldError('metodoPagoId')"
+            :class="{ invalid: fieldErrors.metodoPagoId }"
+            aria-invalid="fieldErrors.metodoPagoId ? 'true' : 'false'"
+          >
+            <option value="" disabled>-- Selecciona método de pago --</option>
+            <option v-for="m in metodosPago" :key="m.id" :value="m.id">{{ m.nombre }}</option>
+          </select>
+        </div>
         <div class="helper" v-if="fieldErrors.metodoPagoId">{{ fieldErrors.metodoPagoId }}</div>
       </div>
 
       <!-- Estado venta -->
       <div class="field">
         <label>Estado venta</label>
-        <select
-          v-model="ventaCrear.estadoVentaId"
-          @change="clearFieldError('estadoVentaId')"
-          :class="{ invalid: fieldErrors.estadoVentaId }"
-          aria-invalid="fieldErrors.estadoVentaId ? 'true' : 'false'"
-        >
-          <option value="" disabled>Selecciona estado</option>
-          <option v-for="s in estadosVenta" :key="s.id" :value="s.id">{{ s.nombre }}</option>
-        </select>
+        <div class="select-wrapper" :data-placeholder="!ventaCrear.estadoVentaId ? 'Selecciona estado venta' : ''">
+          <select
+            v-model="ventaCrear.estadoVentaId"
+            @change="clearFieldError('estadoVentaId')"
+            :class="{ invalid: fieldErrors.estadoVentaId }"
+            aria-invalid="fieldErrors.estadoVentaId ? 'true' : 'false'"
+          >
+            <option value="" disabled>-- Selecciona estado venta --</option>
+            <option v-for="s in estadosVenta" :key="s.id" :value="s.id">{{ s.nombre }}</option>
+          </select>
+        </div>
         <div class="helper" v-if="fieldErrors.estadoVentaId">{{ fieldErrors.estadoVentaId }}</div>
       </div>
 
@@ -744,8 +748,9 @@ export default {
           this.$emit('created', this.ventaCreada.idVenta || this.ventaCreada.id)
         }
 
-        // mostrar toast de éxito centrado
-        this.showSuccess('Venta registrada correctamente.')
+        // mostrar toast de éxito centrado con el ID de la venta creada
+        const ventaId = this.ventaCreada?.idVenta || this.ventaCreada?.id || '?'
+        this.showSuccess(`Venta registrada correctamente. ID: ${ventaId}`)
 
         // cerrar modal y limpiar todo para iniciar nueva venta inmediatamente
         this.showConfirmModal = false
@@ -865,6 +870,26 @@ export default {
   transition: border-color .12s ease, box-shadow .12s ease, transform .06s ease;
   box-sizing: border-box;
 }
+
+/* Wrapper para select con placeholder */
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+.select-wrapper select {
+  width: 100%;
+}
+.select-wrapper[data-placeholder]::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  color: #999;
+  font-size: 0.95rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
 .field input:focus,
 .field select:focus,
 .field textarea:focus {

@@ -1,7 +1,9 @@
 <template>
   <div class="crear-venta-wrapper">
     <div class="crear-venta-card">
+      <div class="registarventacard">
       <h2 class="crear-venta-title">Registrar Venta</h2>
+      </div>
 
       <!-- aquí va tu formulario real; si ya tienes componentes, insértalos -->
       <VentaForm /> 
@@ -22,18 +24,25 @@ export default {
 <style scoped>
 .crear-venta-title {
   text-align: center;
-  color: #e67e22;
-  margin-bottom: 20px;
-  font-size: 3rem;
+  color: #ff8d2a;
+  font-size: 50px;
+
   font-weight: bold;
 }
 .crear-venta-card {
   background: #fff;
-
+  padding: 2%;
   justify-content: center;
   border-radius: 10px;
-  padding: 1.5rem;
+ 
   box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  font-size: medium;
 }
-.crear-venta-title { font-size: 1.4rem; margin-bottom: 1rem; }
+
+.registarventacard {
+  margin-bottom: 20px;
+  padding-top: 20px;
+
+}
+
 </style>
