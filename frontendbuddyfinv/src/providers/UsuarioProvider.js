@@ -3,6 +3,12 @@ import { UsuarioDTO } from '../models/Usuario.js'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 const USUARIOS_BASE = `${API_BASE_URL}/usuarios`
 
+
+function getAuthHeader() {
+  const token = localStorage.getItem('token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 async function handleResponse(response) {
   if (!response.ok) {
     const text = await response.text().catch(() => '')
@@ -43,6 +49,18 @@ export const UsuarioProvider = {
     } catch (error) {
       return { success: false, message: 'Error de conexión con el servidor' };
     }
+  },
+  ////////////////Santiago montenego ruales perfil usuario inicio
+  async getPerfil() {
+    const res = await fetch(`${USUARIOS_BASE}/perfil`, {
+      method: 'GET',
+      headers: {
+        ...getAuthHeader()
+      },
+      credentials: 'include'
+    });
+    return handleResponse(res);
   }
+  ////////////////Santiago montenegro ruales perfil usuario fin
   
 }

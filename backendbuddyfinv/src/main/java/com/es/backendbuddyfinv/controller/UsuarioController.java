@@ -1,6 +1,7 @@
 package com.es.backendbuddyfinv.controller;
 
 import com.es.backendbuddyfinv.dto.UsuarioDTO;
+import com.es.backendbuddyfinv.dto.PerfilUsuarioDTO;
 
 import com.es.backendbuddyfinv.model.Usuario;
 import com.es.backendbuddyfinv.service.impl.UsuarioService;
@@ -9,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -125,4 +129,23 @@ public class UsuarioController {
             return ResponseEntity.badRequest().body("Error al eliminar usuario: " + e.getMessage());
         }
     }
+/////////////////SANTIAGO MONTENEGRO MOSTRAR PERFIL INICIO
+
+@GetMapping("/perfil")
+public ResponseEntity<PerfilUsuarioDTO> obtenerPerfilUsuarioAutenticado() {
+    try {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Usuario usuario = usuarioService.findByUsuario(username);
+        PerfilUsuarioDTO dto = new PerfilUsuarioDTO(usuario);
+
+        return ResponseEntity.ok(dto);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+}
+
+
+/////////////////SANTIAGO MONTENEGRO MOSTRAR PERFIL INICIO FIN
 }

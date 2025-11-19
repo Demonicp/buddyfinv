@@ -39,30 +39,27 @@
     </aside>
 
     <main class="contenido">
-      <div class="top-bar">
-        <div class="fecha-hora">{{ fechaHora }}</div>
-        <div class="usuario-info">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="40" fill="currentColor" viewBox="0 0 16 16">
-            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-          </svg>
-          <span>{{ username }}</span>
-        </div>
-      </div>
-      <RouterView />
-      <div v-if="confirmLogout" class="confirm-overlay">
-        <div class="confirm-box">
-          <p>¿Está seguro que desea cerrar la sesión?</p>
-          <div class="confirm-actions">
-            <button class="btn-confirm" @click="handleLogout">Confirmar</button>
-            <button class="btn-cancel" @click="confirmLogout = false">Cancelar</button>
-          </div>
-        </div>
-      </div>
+  <div class="top-bar">
+    <div class="fecha-hora">{{ fechaHora }}</div>
+    <PerfilUserTable />
+  </div>
 
-      <div v-if="showSuccess" class="success-message">
-        Sesión cerrada correctamente.
+  <RouterView />
+
+  <div v-if="confirmLogout" class="confirm-overlay">
+    <div class="confirm-box">
+      <p>¿Está seguro que desea cerrar la sesión?</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm" @click="handleLogout">Confirmar</button>
+        <button class="btn-cancel" @click="confirmLogout = false">Cancelar</button>
       </div>
-    </main>
+    </div>
+  </div>
+
+  <div v-if="showSuccess" class="success-message">
+    Sesión cerrada correctamente.
+  </div>
+</main>
   </div>
 </template>
 
@@ -75,6 +72,7 @@ import IconGraficas from '../components/icons/IconGraficas.vue'
 import IconConfiguracion from '../components/icons/IconConfiguracion.vue'
 import IconCerrarSesion from '../components/icons/IconCerrarSesion.vue'
 import { useUsuarioStore } from '@/stores/usuarioStore'
+import PerfilUserTable from '@/components/PerfilUserTable.vue'
 
 export default {
   components: {
@@ -83,7 +81,9 @@ export default {
     IconInventario,
     IconGraficas,
     IconConfiguracion,
-    IconCerrarSesion
+    IconCerrarSesion,
+    PerfilUserTable
+
   },
   data() {
     return {
