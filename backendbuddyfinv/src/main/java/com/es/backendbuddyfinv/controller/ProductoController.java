@@ -3,12 +3,21 @@ package com.es.backendbuddyfinv.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.es.backendbuddyfinv.repository.InventarioRepository;
+import com.es.backendbuddyfinv.service.impl.ProductoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,6 +46,8 @@ import jakarta.persistence.EntityNotFoundException;
    
 
 public class ProductoController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
 
     @Autowired
@@ -72,21 +83,21 @@ public class ProductoController {
         return "Controlador de productos funcionando correctamente!";
     }
     //se supone que este metodo no debe ir aqui, lo pondr ene comentarios mientras tanto
-@GetMapping("/propietario")
-        public ResponseEntity<List<ProductoDTO>> obtenerEgresosDetallados() {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    @GetMapping("/propietario")
+            public ResponseEntity<List<ProductoDTO>> obtenerEgresosDetallados() {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+                if (authentication == null || !authentication.isAuthenticated()) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+        
+                CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+                Long idPropietario = userDetails.getIdUsuario();
+        
+                List<ProductoDTO> producto = productoService.getProductosPorUsuario(idPropietario);
+                                                
+                return ResponseEntity.ok(producto);
             }
-    
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            Long idPropietario = userDetails.getIdUsuario();
-    
-            List<ProductoDTO> producto = productoService.getProductosPorUsuario(idPropietario);
-                                            
-            return ResponseEntity.ok(producto);
-        }
 
     //funcion para agregar productos
     @PostMapping("/agregar")
@@ -232,6 +243,57 @@ public ResponseEntity<?> guardarModificacionProducto(@RequestBody ProductoEdicio
 
 
 
+
+    /**
+ * Obtener producto por id (para la búsqueda por id en el autocomplete).
+ * Devuelve 404 si no existe o no es accesible.
+ */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductoPorId(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long requesterId = userDetails.getIdUsuario();
+        List<String> roles = List.of(userDetails.getRol()); // si userDetails tiene lista, adapta
+
+        List<com.es.backendbuddyfinv.dto.ProductoSelectorDTO> res =
+            productoService.buscarParaSelector(requesterId, roles, id.toString(), 1);
+
+        if (res == null || res.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado o no accesible");
+        }
+        return ResponseEntity.ok(res.get(0));
+    }
+
+
+
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProductos(@RequestParam("q") String q,
+                                        @RequestParam(value = "limit", defaultValue = "12") int limit) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long requesterId = userDetails.getIdUsuario();
+        List<String> roles = List.of(userDetails.getRol()); // si userDetails tiene lista, adapta
+
+        try {
+            List<com.es.backendbuddyfinv.dto.ProductoSelectorDTO> resultados =
+                productoService.buscarParaSelector(requesterId, roles, q, limit);
+            return ResponseEntity.ok(resultados);
+        } catch (Exception ex) {
+            // proteges el endpoint frente a errores inesperados
+            logger.error("Error en searchProductos q='{}': {}", q, ex.getMessage(), ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error buscando productos: " + ex.getMessage());
+        }
+    }
 
 
 

@@ -1,7 +1,12 @@
 package com.es.backendbuddyfinv.service.impl;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -224,5 +229,139 @@ public Optional<Producto> getProductoSiEsDelPropietario(Long idProducto, Long id
     }
 
 ///SANTIAGO MONTENEGRO RUALES MODIFICAR PRODUCTO FIN
+/// 
+
+
+        /**
+     * Buscar productos para selector/autocomplete respetando visibilidad.
+     *
+     * @param requesterId id del usuario que hace la petición (extraer desde Authentication)
+     * @param roles lista de roles del requester (ej. "ROLE_ADMIN", "ROLE_EMPLEADO")
+     * @param q término de búsqueda (id o texto)
+     * @param limit cantidad máxima de resultados
+     * @return lista de ProductoSelectorDTO
+     */
+    @Transactional(readOnly = true)
+    public List<com.es.backendbuddyfinv.dto.ProductoSelectorDTO> buscarParaSelector(Long requesterId, List<String> roles, String q, int limit) {
+        if (q == null || q.trim().isEmpty()) return Collections.emptyList();
+        q = q.trim();
+        boolean byId = q.matches("^\\d+$");
+
+        // Búsqueda por id exacto
+        if (byId) {
+            Long id = Long.valueOf(q);
+            // Usa el método que trae relaciones para evitar N+1
+            Optional<Producto> opt = productoRepository.findWithRelationsById(id);
+            if (opt.isEmpty()) return Collections.emptyList();
+            Producto p = opt.get();
+            if (!canAccessProducto(requesterId, roles, p)) return Collections.emptyList();
+            Integer cantidad = sumarCantidadInventario(p);
+            return List.of(mapToSelectorDto(p, cantidad));
+        }
+
+        // Búsqueda por texto: obtenemos primero los ids (optimización), luego los productos con relaciones
+        List<Long> ids;
+        try {
+            ids = productoRepository.searchIdsByQ(q, limit);
+        } catch (Exception ex) {
+            // Si la consulta native falla, devolvemos vacío para no romper la UI
+            logger.warn("searchIdsByQ falló para q='{}': {}", q, ex.getMessage());
+            return Collections.emptyList();
+        }
+
+        if (ids == null || ids.isEmpty()) return Collections.emptyList();
+
+        List<Producto> productos = productoRepository.findWithRelationsByIds(ids);
+        if (productos == null || productos.isEmpty()) return Collections.emptyList();
+
+        // Map para acceder por id rápidamente y mantener el orden original de ids
+        Map<Long, Producto> productosById = productos.stream()
+                .collect(Collectors.toMap(Producto::getIdProducto, p -> p));
+
+        List<com.es.backendbuddyfinv.dto.ProductoSelectorDTO> result = new ArrayList<>();
+        for (Long id : ids) {
+            Producto p = productosById.get(id);
+            if (p == null) continue;
+            if (!canAccessProducto(requesterId, roles, p)) continue;
+            Integer cantidad = sumarCantidadInventario(p);
+            result.add(mapToSelectorDto(p, cantidad));
+            if (result.size() >= limit) break;
+        }
+        return result;
+    }
+
+    // Método auxiliar: mapea Producto + cantidad a ProductoSelectorDTO
+    private com.es.backendbuddyfinv.dto.ProductoSelectorDTO mapToSelectorDto(Producto p, Integer cantidadDisponible) {
+        if (p == null) return null;
+        Long id = p.getIdProducto();
+        String nombre = p.getNombre();
+        Double precio = p.getPrecio(); // si cambias a BigDecimal adapta aquí
+        return new com.es.backendbuddyfinv.dto.ProductoSelectorDTO(id, nombre, cantidadDisponible == null ? 0 : cantidadDisponible, precio);
+    }
+
+    // Reusa la lógica de sumar inventario que ya tenías en la propuesta anterior
+    private Integer sumarCantidadInventario(Producto p) {
+        List<com.es.backendbuddyfinv.model.DetalleInventario> detalles = p.getDetalleInventarios();
+        if (detalles == null || detalles.isEmpty()) return 0;
+        return detalles.stream()
+                .map(di -> {
+                    try {
+                        Integer v = di.getCantidadDisponible(); // intenta ambos nombres por compatibilidad
+                        return v == null ? 0 : v;
+                    } catch (Exception ex) {
+                        return 0;
+                    }
+                })
+                .reduce(0, Integer::sum);
+    }
+
+    // Reusa/ajusta la lógica de visibilidad; chequea ROLE_ADMIN, ROLE_EMPLEADO y propietario
+    private boolean canAccessProducto(Long requesterId, List<String> roles, Producto p) {
+        if (p == null || p.getPropietario() == null) return false;
+
+        Long propietarioId;
+        try {
+            // intenta getters comunes
+            propietarioId = p.getPropietario().getId();
+        } catch (Exception ex) {
+            try {
+                propietarioId = p.getPropietario().getId();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        if (roles != null && roles.stream().anyMatch(r -> r.equalsIgnoreCase("ROLE_ADMIN") || r.equalsIgnoreCase("ADMIN"))) {
+            return true;
+        }
+
+        if (roles != null && roles.stream().anyMatch(r -> r.equalsIgnoreCase("ROLE_EMPLEADO") || r.equalsIgnoreCase("EMPLEADO"))) {
+            // Intentamos obtener el admin asociado al empleado desde usuarioRepository.
+            // Se asume que Usuario tiene un campo administrador o similar; adaptarlo si tu modelo es distinto.
+            try {
+                Optional<com.es.backendbuddyfinv.model.Usuario> optEmpleado = usuarioRepository.findById(requesterId);
+                if (optEmpleado.isPresent()) {
+                    com.es.backendbuddyfinv.model.Usuario empleado = optEmpleado.get();
+                    // intenta varios nombres de getter para el admin (getAdministrador, getUsuarioAdmin, getAdmin)
+                    Long adminId = null;
+                    try { adminId = empleado.getAdministrador().getId(); } catch (Exception ignored) {}
+                    if (adminId == null) {
+                        try { adminId = empleado.getAdministrador().getId(); } catch (Exception ignored) {}
+                    }
+                    if (adminId == null) {
+                        // si no hay relación explícita, podrías usar un campo como getIdAdministrador si existe
+                        try { adminId = (Long) usuarioRepository.getClass().getMethod("findAdminIdByEmpleadoId", Long.class).invoke(usuarioRepository, requesterId); } catch (Exception ignored) {}
+                    }
+                    return adminId != null && adminId.equals(propietarioId);
+                }
+            } catch (Exception ex) {
+                logger.warn("No se pudo verificar admin del empleado {}: {}", requesterId, ex.getMessage());
+                return false;
+            }
+        }
+
+        return Objects.equals(propietarioId, requesterId);
+    }
+
 
 }

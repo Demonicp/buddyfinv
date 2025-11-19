@@ -3,6 +3,8 @@ package com.es.backendbuddyfinv.controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.es.backendbuddyfinv.dto.UsuarioDTO;
+import com.es.backendbuddyfinv.dto.PerfilUsuarioDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 
 import com.es.backendbuddyfinv.dto.UsuarioDTO;
 import com.es.backendbuddyfinv.dto.UsuarioDTOfind;
@@ -145,7 +151,7 @@ public class UsuarioController {
 
 
     //no borrar funcion de juan david
-
+  //esto es de juan david no borrar
     @GetMapping("/allUsersByPropietario")
     public ResponseEntity<List<UsuarioDTOfind>> obtenerEgresosDetallados() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -171,4 +177,23 @@ public class UsuarioController {
 
 
 
+/////////////////SANTIAGO MONTENEGRO MOSTRAR PERFIL INICIO
+
+@GetMapping("/perfil")
+public ResponseEntity<PerfilUsuarioDTO> obtenerPerfilUsuarioAutenticado() {
+    try {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Usuario usuario = usuarioService.findByUsuario(username);
+        PerfilUsuarioDTO dto = new PerfilUsuarioDTO(usuario);
+
+        return ResponseEntity.ok(dto);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+}
+
+
+/////////////////SANTIAGO MONTENEGRO MOSTRAR PERFIL INICIO FIN
 }

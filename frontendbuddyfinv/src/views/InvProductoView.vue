@@ -20,7 +20,7 @@ export default {
 .inventario-view {
   background-color: #fdf6ec; 
   padding: 2rem;
-  min-height: 100%;
+
   font-family: 'Segoe UI', sans-serif;
 }
 

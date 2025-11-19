@@ -61,6 +61,18 @@ export const UsuarioProvider = {
     return handleResponse(res);
   },
   
+  ////////////////Santiago montenego ruales perfil usuario inicio
+  async getPerfil() {
+    const res = await fetch(`${USUARIOS_BASE}/perfil`, {
+      method: 'GET',
+      headers: {
+        ...getAuthHeader()
+      },
+      credentials: 'include'
+    });
+    return handleResponse(res);
+  }
+  ////////////////Santiago montenegro ruales perfil usuario fin
   
   async getAllUsuariosByPropietario() {
     const res = await fetch(`${USUARIOS_BASE}/allUsersByPropietario`, {
