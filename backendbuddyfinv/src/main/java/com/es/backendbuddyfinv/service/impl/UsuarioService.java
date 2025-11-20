@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.es.backendbuddyfinv.dto.UsuarioDTOfind;
 import com.es.backendbuddyfinv.model.Rol;
 import com.es.backendbuddyfinv.model.Usuario;
 import com.es.backendbuddyfinv.repository.RolRepository;
@@ -95,6 +96,9 @@ public class UsuarioService {
         .orElseThrow(() -> new RuntimeException("Rol por defecto o admin no encontrado"));
     }
 
+    public List<UsuarioDTOfind> listarDTOsPorUsuario(Long idPropietario) {
+        return usuarioRepository.findByPropietario(idPropietario);
+    }
     
 
 }

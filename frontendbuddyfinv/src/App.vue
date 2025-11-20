@@ -21,7 +21,7 @@ import HelloWorld from './components/HelloWorld.vue'
 
 <style scoped>
 header {
-  line-height: 1.5;
+
   max-height: 100vh;
 }
 
@@ -31,10 +31,10 @@ header {
 }
 
 nav {
-  width: 100%;
+  width: 100vw;
+  height: 100vh;
   font-size: 12px;
   text-align: center;
-  margin-top: 2rem;
 }
 
 nav a.router-link-exact-active {
@@ -74,11 +74,11 @@ nav a:first-of-type {
 
   nav {
     text-align: left;
-    margin-left: -1rem;
+
     font-size: 1rem;
 
-    padding: 1rem 0;
-    margin-top: 1rem;
+
+
   }
 }
 </style>

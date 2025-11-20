@@ -2,8 +2,10 @@ package com.es.backendbuddyfinv.model;
 
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,6 +27,10 @@ public class Venta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_venta")
     private Long idVenta;
+
+    @Column(name = "cliente", nullable = true)
+    private String cliente;
+
 
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
@@ -50,8 +56,8 @@ public class Venta {
     @JoinColumn(name = "id_propietario")
     private Usuario propietario;
 
-    @OneToMany(mappedBy = "venta")
-    private List<DetalleVenta> detalleVentas;
+    @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL,orphanRemoval= true)
+    private List<DetalleVenta> detalleVentas = new ArrayList<>();
 
     // Constructor por defecto
     public Venta() {

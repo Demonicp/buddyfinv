@@ -1,18 +1,36 @@
 package com.es.backendbuddyfinv.controller;
 
-import com.es.backendbuddyfinv.dto.UsuarioDTO;
-
-import com.es.backendbuddyfinv.model.Usuario;
-import com.es.backendbuddyfinv.service.impl.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import com.es.backendbuddyfinv.dto.UsuarioDTO;
+import com.es.backendbuddyfinv.dto.PerfilUsuarioDTO;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+
+import com.es.backendbuddyfinv.dto.UsuarioDTO;
+import com.es.backendbuddyfinv.dto.UsuarioDTOfind;
+import com.es.backendbuddyfinv.model.Usuario;
+import com.es.backendbuddyfinv.security.CustomUserDetails;
+import com.es.backendbuddyfinv.service.impl.UsuarioService;
 
 @RestController
 @RequestMapping("/usuarios")       
@@ -113,16 +131,69 @@ public class UsuarioController {
     }
 
     // Eliminar usuario
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
+    @DeleteMapping("/eliminar")
+    public ResponseEntity<?> eliminarUsuario(@RequestParam Long idUsuario) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         try {
-            boolean eliminado = usuarioService.deleteUsuario(id);
+            boolean eliminado = usuarioService.deleteUsuario(idUsuario);
             if (eliminado) {
-                return ResponseEntity.ok().body("Usuario eliminado exitosamente");
+                return ResponseEntity.ok("Usuario eliminado exitosamente");
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al eliminar usuario: " + e.getMessage());
         }
     }
+
+
+    //no borrar funcion de juan david
+  //esto es de juan david no borrar
+    @GetMapping("/allUsersByPropietario")
+    public ResponseEntity<List<UsuarioDTOfind>> obtenerEgresosDetallados() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long idPropietario = userDetails.getIdUsuario();
+
+        List<UsuarioDTOfind> usuarios = usuarioService.listarDTOsPorUsuario(idPropietario);
+        return ResponseEntity.ok(usuarios);
+    }
+
+
+
+
+
+
+
+
+
+
+
+/////////////////SANTIAGO MONTENEGRO MOSTRAR PERFIL INICIO
+
+@GetMapping("/perfil")
+public ResponseEntity<PerfilUsuarioDTO> obtenerPerfilUsuarioAutenticado() {
+    try {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Usuario usuario = usuarioService.findByUsuario(username);
+        PerfilUsuarioDTO dto = new PerfilUsuarioDTO(usuario);
+
+        return ResponseEntity.ok(dto);
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+}
+
+
+/////////////////SANTIAGO MONTENEGRO MOSTRAR PERFIL INICIO FIN
 }
