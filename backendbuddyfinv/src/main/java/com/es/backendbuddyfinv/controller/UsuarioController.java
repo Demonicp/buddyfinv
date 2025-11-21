@@ -34,6 +34,8 @@ import com.es.backendbuddyfinv.security.CustomUserDetails;
 import com.es.backendbuddyfinv.security.JwtUtil;
 import com.es.backendbuddyfinv.service.impl.UsuarioService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/usuarios")       
 public class UsuarioController {
@@ -110,7 +112,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/agregar")
-    public ResponseEntity<?> crearEmpleado(@RequestBody UsuarioCrearDTO dto, @RequestHeader("Authorization") String authHeader){
+    public ResponseEntity<?> crearEmpleado(@Valid @RequestBody UsuarioCrearDTO dto, @RequestHeader("Authorization") String authHeader){
         long idAdmin= obtenerAdministradorDesdeToken(authHeader);
 
         Usuario nuevoEmpleado = usuarioService.crearEmpleado(idAdmin, dto);
