@@ -3,7 +3,8 @@
     <div v-if="mensajeExito" class="success-message">
       {{ mensajeExito }}
     </div>
-    <img src="@/assets/logo.svg" alt="Logo del sistema" class="logo" />
+
+    <h2 class="logo">BUDDYFINV</h2>
 
     <div class="login-box">
       <h2>Iniciar Sesión</h2>
@@ -13,7 +14,6 @@
         <input
           v-model="usuario"
           placeholder="Ingrese su usuario (obligatorio)"
-          @input="validarUsuario"
         />
         <span class="icon">
           <span v-if="usuario && usuarioValido">✅</span>
@@ -28,7 +28,6 @@
           :type="mostrarPassword ? 'text' : 'password'"
           v-model="password"
           placeholder="Ingrese su contraseña (obligatorio)"
-          @input="validarPassword"
         />
         <span class="icon">
           <span v-if="password && passwordValida">✅</span>
@@ -51,7 +50,9 @@
         Iniciar sesión
       </button>
 
-      <p v-if="mensajeError" class="error-text">{{ mensajeError }}</p>
+      <p v-if="mensajeError && !mensajeUsuario && !mensajePassword" class="error-text">
+        {{ mensajeError }}
+      </p>
 
       <div class="links">
         <router-link to="/registro">Registrar negocio</router-link>
@@ -63,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useUsuarioStore } from '../stores/usuarioStore'
 import { useRouter } from 'vue-router'
 
@@ -78,12 +79,11 @@ const passwordValida = ref(false)
 const mostrarPassword = ref(false)
 const bloqueo = ref(false)
 const intentos = ref(0)
-const mensajeExito = ref('') // Nuevo estado para mensaje de éxito
+const mensajeExito = ref('')
 
 const usuarioStore = useUsuarioStore()
 const router = useRouter()
 
-// ✅ Validación usuario
 const validarUsuario = () => {
   const regex = /^[a-zA-Z0-9]{8,20}$/
   usuarioValido.value = regex.test(usuario.value)
@@ -92,7 +92,6 @@ const validarUsuario = () => {
     : 'El campo usuario debe tener entre 8 y 20 caracteres alfanuméricos, sin espacios en blanco.'
 }
 
-// ✅ Validación contraseña
 const validarPassword = () => {
   const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{8,30}$/
   passwordValida.value = regex.test(password.value)
@@ -101,10 +100,18 @@ const validarPassword = () => {
     : 'El campo contraseña debe tener entre 8 y 30 caracteres, incluir una mayúscula, un número y un carácter especial (sin espacios en blanco).'
 }
 
-// ✅ Formulario válido
+watch(usuario, () => {
+  validarUsuario()
+  mensajeError.value = ''
+})
+
+watch(password, () => {
+  validarPassword()
+  mensajeError.value = ''
+})
+
 const formValido = computed(() => usuarioValido.value && passwordValida.value)
 
-// ✅ Lógica login con backend JWT
 const iniciarSesion = async () => {
   try {
     const res = await fetch('http://localhost:8080/auth/login', {
@@ -119,15 +126,18 @@ const iniciarSesion = async () => {
     if (!res.ok) {
       const text = await res.text()
 
-      if (res.status === 404){ 
+      mensajeUsuario.value = ''
+      mensajePassword.value = ''
+      mensajeError.value = ''
+
+      if (res.status === 404) {
         mensajeUsuario.value = text
-        mensajePassword.value= ''
-      }else if (res.status == 401) {
+      } else if (res.status === 401) {
         mensajePassword.value = text
-        mensajeUsuario.value = ''
-      }else if (res.status == 400){
-        mensajePassword.value = text
+      } else if (res.status === 400) {
+        mensajeError.value = text
       }
+
       throw new Error(text)
     }
 
@@ -154,7 +164,6 @@ const iniciarSesion = async () => {
   }
 }
 
-// ✅ Recordar usuario si estaba guardado
 onMounted(() => {
   const guardado = localStorage.getItem('usuario')
   if (guardado) {
@@ -173,10 +182,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 .login-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   justify-content: center;
   height: 100vh;
   width: 100vw;
@@ -185,33 +197,57 @@ onMounted(() => {
   overflow: hidden;
 }
 
+
+
+
 .logo {
-  width: 140px;
-  margin-bottom: 15px;
+  
+  font-family: 'Outfit',  sans-serif;
+
+  font-weight: 900;
+  font-size: 3.4rem;
+  color: coral;  
+  
 }
 .login-box {
+  font-family: 'Outfit',  sans-serif;
   background: white;
-  padding: 30px;
-  border-radius: 12px;
+  font-weight: 800;
+  padding: 20px;
+  border-radius: 30px;
+  height: 50%;
   width: 360px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 h2 {
+  font-family: 'Outfit',  sans-serif;
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  font-weight: 700;
+  
+  font-size: 2rem;
+
+  color: #575757ff;
+  margin-bottom: 40px;
 }
 .input-group {
   position: relative;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
+
+
 .input-group input {
   width: 100%;
-  padding: 10px;
-  padding-right: 35px;
+  padding: 4%;
   border: 1px solid #ccc;
   border-radius: 8px;
+  background-color: #f5f5f5; /* Fondo gris claro */
 }
+
+.input-group input::placeholder {
+  color: #999; /* Cambiar este color al que prefieras */
+  opacity: 1; /* Asegurar que sea visible en todos los navegadores */
+}
+
 .input-group.error input {
   border-color: red;
 }
@@ -236,7 +272,7 @@ h2 {
 button {
   width: 100%;
   padding: 10px;
-  background-color: #004aad;
+  background-color: #ff7b00;
   color: white;
   border: none;
   border-radius: 8px;
@@ -244,7 +280,7 @@ button {
   transition: 0.3s;
 }
 button:hover:enabled {
-  background-color: #003a8c;
+  background-color: #ff7b00;
 }
 button:disabled {
   background-color: #ccc;
