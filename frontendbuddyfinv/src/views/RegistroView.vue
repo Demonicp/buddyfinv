@@ -248,26 +248,32 @@ validarCampos(){
   </script>
   
   <style scoped>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+  
   .registro-container {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     width: 100vw;
-    background: #fffaf3;
-    font-family: "Segoe UI", sans-serif;
+    background-image: url('@/assets/FondoLogin.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    font-family: 'Segoe UI', sans-serif;
     padding: 0 20px;
     box-sizing: border-box;
   }
   
   .registro-box {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.85); /* fondo blanco translúcido */
     padding: 30px 40px;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 900px;
     border: 1px solid #f5cba7;
+    font-family: 'Outfit', sans-serif;
   }
   
   h2 {
@@ -275,6 +281,7 @@ validarCampos(){
     color: #e67e22;
     font-weight: 700;
     margin-bottom: 25px;
+    font-family: 'Outfit', sans-serif;
   }
   
   /* GRID con dos columnas */
@@ -293,15 +300,17 @@ validarCampos(){
     font-weight: 600;
     color: #4d2c0c;
     margin-bottom: 5px;
+    font-family: 'Outfit', sans-serif;
   }
   
   input {
     width: 100%;
     padding: 10px;
-    border: 1px solid #f5cba7;
+    border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1em;
-    background-color: #fdf6ec;
+    background-color: #f5f5f5;
+    font-family: 'Outfit', sans-serif;
     transition: border-color 0.2s, background-color 0.2s;
   }
   
@@ -336,6 +345,7 @@ validarCampos(){
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-family: 'Outfit', sans-serif;
   }
   
   button:hover {

@@ -192,26 +192,24 @@ onMounted(() => {
   justify-content: center;
   height: 100vh;
   width: 100vw;
-  background: #eef2f5;
+  background-image: url('@/assets/FondoLogin.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   font-family: 'Segoe UI', sans-serif;
   overflow: hidden;
 }
 
-
-
-
 .logo {
-  
-  font-family: 'Outfit',  sans-serif;
-
+  font-family: 'Outfit', sans-serif;
   font-weight: 900;
   font-size: 3.4rem;
-  color: coral;  
-  
+  color: coral;
 }
+
 .login-box {
-  font-family: 'Outfit',  sans-serif;
-  background: white;
+  font-family: 'Outfit', sans-serif;
+  background: rgba(255, 255, 255, 0.85); /* fondo blanco translúcido */
   font-weight: 800;
   padding: 20px;
   border-radius: 30px;
@@ -219,56 +217,60 @@ onMounted(() => {
   width: 360px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
 h2 {
-  font-family: 'Outfit',  sans-serif;
+  font-family: 'Outfit', sans-serif;
   text-align: center;
   font-weight: 700;
-  
   font-size: 2rem;
-
-  color: #575757ff;
+  color: #575757;
   margin-bottom: 40px;
 }
+
 .input-group {
   position: relative;
   margin-bottom: 25px;
 }
-
 
 .input-group input {
   width: 100%;
   padding: 4%;
   border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #f5f5f5; /* Fondo gris claro */
+  background-color: #f5f5f5;
 }
 
 .input-group input::placeholder {
-  color: #999; /* Cambiar este color al que prefieras */
-  opacity: 1; /* Asegurar que sea visible en todos los navegadores */
+  color: #999;
+  opacity: 1;
 }
 
 .input-group.error input {
   border-color: red;
 }
+
 .icon {
   position: absolute;
   right: 35px;
   top: 10px;
   font-size: 1.1em;
 }
+
 .ojo {
   position: absolute;
   right: 10px;
   top: 10px;
   cursor: pointer;
 }
+
 .recordar {
   margin: 10px 0;
 }
+
 .recordar-label {
   color: #333;
 }
+
 button {
   width: 100%;
   padding: 10px;
@@ -279,26 +281,32 @@ button {
   cursor: pointer;
   transition: 0.3s;
 }
+
 button:hover:enabled {
   background-color: #ff7b00;
 }
+
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
+
 .error-text {
   color: red;
   font-size: 0.9em;
 }
+
 .links {
   margin-top: 15px;
   font-size: 0.9em;
   text-align: center;
 }
+
 .links a {
   color: #004aad;
   text-decoration: none;
 }
+
 .success-message {
   position: fixed;
   top: 20px;
