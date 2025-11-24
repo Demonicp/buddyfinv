@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.NoSuchElementException;
 import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
+import com.es.backendbuddyfinv.dto.ProductoSelectorDTO;
 import com.es.backendbuddyfinv.dto.ProductoDTO;
 import com.es.backendbuddyfinv.model.Producto;
 import com.es.backendbuddyfinv.model.Inventario;
@@ -30,6 +32,7 @@ import com.es.backendbuddyfinv.repository.TipoProductoRepository;
 import com.es.backendbuddyfinv.model.TipoProducto;
 import com.es.backendbuddyfinv.model.EstadoProducto;
 import jakarta.persistence.EntityNotFoundException;
+
 
 @Service
 public class ProductoService {
@@ -227,7 +230,40 @@ public Optional<Producto> getProductoSiEsDelPropietario(Long idProducto, Long id
     public Producto createProductoModificar(Producto producto) {
         return productoRepository.save(producto);
     }
+///Santiago Montenegro Historia 17
 
+@Transactional(readOnly = true)
+public List<ProductoDTO> buscarInventario(Long requesterId, List<String> roles,
+                                          Long idProducto, String nombre, Long idTipoProducto) {
+    // Validación: al menos un campo
+    if (idProducto == null && (nombre == null || nombre.trim().isEmpty()) && idTipoProducto == null) {
+        throw new IllegalArgumentException("Debes completar por lo menos un campo de búsqueda");
+    }
+
+    List<Producto> productos = new ArrayList<>();
+
+    if (idProducto != null) {
+        productoRepository.findWithRelationsById(idProducto)
+            .filter(p -> canAccessProducto(requesterId, roles, p))
+            .ifPresent(productos::add);
+    } else if (nombre != null && !nombre.trim().isEmpty()) {
+        List<Long> ids = productoRepository.searchIdsByQ(nombre.trim(), 20);
+        productos.addAll(productoRepository.findWithRelationsByIds(ids));
+    } else if (idTipoProducto != null) {
+        productos.addAll(productoRepository.findByTipoProductoIdTipoProducto(idTipoProducto));
+    }
+
+    if (productos.isEmpty()) {
+        throw new NoSuchElementException("El producto buscado no está registrado en el inventario");
+    }
+
+    return productos.stream()
+            .filter(p -> canAccessProducto(requesterId, roles, p))
+            // 🔹 Usamos ProductoDTO en lugar de ProductoSelectorDTO
+            .map(p -> new ProductoDTO(p, sumarCantidadInventario(p)))
+            .collect(Collectors.toList());
+}
+///Santiago Montenegro Historia 17
 ///SANTIAGO MONTENEGRO RUALES MODIFICAR PRODUCTO FIN
 /// 
 
