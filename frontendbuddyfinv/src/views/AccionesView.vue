@@ -30,8 +30,8 @@
             tabindex="0"
             @click="otraAccion"
           >
-            <div class="card-button">Otra acción</div>
-            <p class="card-description">Acciones complementarias y utilidades</p>
+            <div class="card-button">Consultar Recibo de Venta</div>
+            <p class="card-description">Aqui puedes descargar recibos de tus ventas generadas</p>
           </article>
         </div>
       </template>
@@ -52,8 +52,8 @@ export default {
     isChildActive() {
       const name = this.$route && this.$route.name
       const path = this.$route && this.$route.path
-      // nombres de rutas hijas que definimos en router: 'RegistrarVentas' y 'AccionesVentas' (ajusta si renombraste)
-      if (name === 'RegistrarVentas' || name === 'AccionesVentas' || name === 'Ventas') return true
+      // nombres de rutas hijas que definimos en router: 'RegistrarVentas', 'Ventas', 'ConsultarVenta'
+      if (name === 'RegistrarVentas' || name === 'AccionesVentas' || name === 'Ventas' || name === 'ConsultarVenta') return true
       // también detecta cualquier path bajo /dashboard/acciones/
       if (typeof path === 'string' && path.includes('/dashboard/acciones/')) return true
       return false
@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     otraAccion() {
-      console.log('otra accion')
+      this.$router.push({ name: 'ConsultarVenta' })
     }
   }
 }
