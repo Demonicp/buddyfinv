@@ -1,8 +1,18 @@
 package com.es.backendbuddyfinv.controller;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,25 +20,25 @@ import com.es.backendbuddyfinv.repository.InventarioRepository;
 import com.es.backendbuddyfinv.service.impl.ProductoService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
 import com.es.backendbuddyfinv.dto.ProductoDTO;
+import com.es.backendbuddyfinv.dto.ProductoEdicionDTO;
 import com.es.backendbuddyfinv.model.Producto;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
+import com.es.backendbuddyfinv.repository.InventarioRepository;
 import com.es.backendbuddyfinv.security.CustomUserDetails;
-import com.es.backendbuddyfinv.security.JwtAuthenticationFilter;
-import jakarta.persistence.EntityNotFoundException;
-
-
-import java.util.List;
-import java.util.Optional;
+import com.es.backendbuddyfinv.service.impl.ProductoService;
 
 import com.es.backendbuddyfinv.dto.EgresoDTO;
-import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
-import com.es.backendbuddyfinv.dto.ProductoEdicionDTO;
+import com.es.backendbuddyfinv.dto.ProductoReabastecerDTO;
+ 
+import jakarta.persistence.EntityNotFoundException;
+
 
 
 
@@ -40,6 +50,8 @@ import com.es.backendbuddyfinv.dto.ProductoEdicionDTO;
    
 
 public class ProductoController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
 
     @Autowired
@@ -70,28 +82,36 @@ public class ProductoController {
             return ResponseEntity.ok(egresos);
         }
  **/
+
+
+    
+    //OBTENER PRODUCTOS POR USUARIO PROPIETARIO LADY VIDAL. COPIADO DE EGRESOS
+
+
     @GetMapping("/test")
     public String test() {
         return "Controlador de productos funcionando correctamente!";
     }
     //se supone que este metodo no debe ir aqui, lo pondr ene comentarios mientras tanto
-@GetMapping("/propietario")
-        public ResponseEntity<List<ProductoDTO>> obtenerEgresosDetallados() {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    
-            if (authentication == null || !authentication.isAuthenticated()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-    
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            Long idPropietario = userDetails.getIdUsuario();
-    
-            List<ProductoDTO> producto = productoService.getProductosPorUsuario(idPropietario);
-                                            
-            return ResponseEntity.ok(producto);
-        }
+    @GetMapping("/propietario")
+            public ResponseEntity<List<ProductoDTO>> obtenerEgresosDetallados() {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+                if (authentication == null || !authentication.isAuthenticated()) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                }
+        
+                CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+                Long idPropietario = userDetails.getIdUsuario();
+        
+                List<ProductoDTO> producto = productoService.getProductosPorUsuario(idPropietario);
+                                                
+                return ResponseEntity.ok(producto);
 
-    //funcion para agregar productos
+            }
+
+
+    //AGREGAR PRODUCTOS O CREAR PRODUCTO  LADY VIDAL 
     @PostMapping("/agregar")
     public ResponseEntity<?> crearProducto(@RequestBody ProductoCrearDTO dto) {
         try {
@@ -126,27 +146,81 @@ public class ProductoController {
         }
     }
 
-    /** 
-    @GetMapping("/mine")
-    public ResponseEntity<List<ProductoDTO>> obtenerMisProductos() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName(); // este es el subject del token
-    }**/
+  
 
-         /**List<Producto> productos = ProductoRepository.findByPropietarioUsuario(username);
-    List<ProductoDTO> productosDTO = productos.stream().map(p -> {
-        ProductoDTO dto = new ProductoDTO();
-        dto.setIdProducto(p.getIdProducto());
-        dto.setNombre(p.getNombre());
-        dto.setPrecio(p.getPrecio());
-        dto.setTipoProducto(p.getTipoProducto()!=null ? p.getTipoProducto().getNombre() : "Sin tipo");
-        dto.setEstadoProducto(p.getEstadoProducto()!=null ? p.getEstadoProducto().getNombre() : "Sin estado");
-        dto.setPropietario(p.getPropietario()!=null ? p.getPropietario().getNombre() : "Sin propietario");
-        return dto;
-    }).collect(Collectors.toList());
+//////////////////////////INICIO REABASTECER-BUSCAR LADY VIDAL 
+@GetMapping("/reabastecer/buscar/{idProducto}")
+public ResponseEntity<?> buscarProductoParaReabastecer(@PathVariable Long idProducto) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    return ResponseEntity.ok(productosDTO);
-}**/
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long idUsuario = userDetails.getIdUsuario();
+    String rol = userDetails.getRol();
+    Long idAdministrador = userDetails.getIdAdministrador();
+
+    Optional<Producto> productoOpt = productoService.getProductoEditablePorCodigo(
+        idProducto,
+        idUsuario,
+        rol,
+        idAdministrador
+    );
+
+    if (productoOpt.isEmpty()) {
+        return ResponseEntity.status(404).body("No existe un producto con ese código o no tienes permiso para reabastecerlo.");
+    }
+
+    ProductoReabastecerDTO dto = new ProductoReabastecerDTO(productoOpt.get());
+    return ResponseEntity.ok(dto);
+}
+
+
+   //REABASTECER-GUARDAR
+@PutMapping("/reabastecer/guardar")
+public ResponseEntity<?> reabastecerProducto(@RequestBody ProductoReabastecerDTO dto) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long idUsuario = userDetails.getIdUsuario();
+    String rol = userDetails.getRol();
+    Long idAdministrador = userDetails.getIdAdministrador();
+
+    Optional<Producto> productoOpt = productoService.getProductoEditablePorCodigo(
+        dto.getIdProducto(),
+        idUsuario,
+        rol,
+        idAdministrador
+    );
+
+    if (productoOpt.isEmpty()) {
+        return ResponseEntity.status(404).body("Producto no encontrado o sin permisos.");
+    }
+
+    Producto producto = productoOpt.get();
+
+    // Validaciones básicas (pueden complementarse con anotaciones en el DTO)
+ 
+        if (dto.getCantidad() <= 0) {
+            return ResponseEntity.badRequest().body("La cantidad a reabastecer debe ser mayor a cero.");
+        }
+
+    producto.getDetalleInventarios().forEach(detalle -> {
+        detalle.setCantidadDisponible(detalle.getCantidadDisponible() + dto.getCantidad());
+    });
+
+    //USE EL MISMO CREATEPRODUCTOMODIFICAR DE SANTIAGO PARA EVITAR DUPLICAR CODIGO
+    productoService.createProductoModificar(producto);
+    return ResponseEntity.ok("Producto actualizado correctamente.");
+}
+//////////////////////////FIN REABASTECER LADY VIDAL
+
 
 ////SANTIAGO MONTENEGRO RUALES MODFICAR PRODUCTO INICIO
 @GetMapping("/modificar/buscar/{idProducto}")
@@ -195,7 +269,7 @@ public ResponseEntity<?> guardarModificacionProducto(@RequestBody ProductoEdicio
         idUsuario,
         rol,
         idAdministrador
-    );
+    ); 
 
     if (productoOpt.isEmpty()) {
         return ResponseEntity.status(404).body("Producto no encontrado o sin permisos.");
@@ -229,4 +303,64 @@ public ResponseEntity<?> guardarModificacionProducto(@RequestBody ProductoEdicio
     return ResponseEntity.ok("Producto actualizado correctamente.");
 }
 /////SANTIAGO MONTENEGRO RUALES MODIFICAR FIN
+/// 
+/// 
+
+
+
+
+
+    /**
+ * Obtener producto por id (para la búsqueda por id en el autocomplete).
+ * Devuelve 404 si no existe o no es accesible.
+ */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductoPorId(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long requesterId = userDetails.getIdUsuario();
+        List<String> roles = List.of(userDetails.getRol()); // si userDetails tiene lista, adapta
+
+        List<com.es.backendbuddyfinv.dto.ProductoSelectorDTO> res =
+            productoService.buscarParaSelector(requesterId, roles, id.toString(), 1);
+
+        if (res == null || res.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado o no accesible");
+        }
+        return ResponseEntity.ok(res.get(0));
+    }
+
+
+
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProductos(@RequestParam("q") String q,
+                                        @RequestParam(value = "limit", defaultValue = "12") int limit) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long requesterId = userDetails.getIdUsuario();
+        List<String> roles = List.of(userDetails.getRol()); // si userDetails tiene lista, adapta
+
+        try {
+            List<com.es.backendbuddyfinv.dto.ProductoSelectorDTO> resultados =
+                productoService.buscarParaSelector(requesterId, roles, q, limit);
+            return ResponseEntity.ok(resultados);
+        } catch (Exception ex) {
+            // proteges el endpoint frente a errores inesperados
+            logger.error("Error en searchProductos q='{}': {}", q, ex.getMessage(), ex);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error buscando productos: " + ex.getMessage());
+        }
+    }
+
+
+
 }

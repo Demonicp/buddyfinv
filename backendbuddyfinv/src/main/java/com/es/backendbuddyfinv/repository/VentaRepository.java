@@ -34,4 +34,9 @@ List<Venta> findVentasDetalladasByPropietarioId(@Param("idPropietario") Long idP
         JOIN FETCH v.propietario
     """)
     List<Venta> findAllWithGraphs();
+
+
+    List<Venta> findByPropietarioId(Long PropietarioId);
+
+    List<Venta> findByUsuarioId(Long usuarioId);
 }

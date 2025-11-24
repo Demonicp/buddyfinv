@@ -1,0 +1,15 @@
+package com.es.backendbuddyfinv.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.es.backendbuddyfinv.model.DetalleVenta;
+
+@Repository
+public interface DetalleVentaRepository extends JpaRepository<DetalleVenta, Long> {
+    List<DetalleVenta> findByVentaIdVenta(Long idVenta);
+
+    List<DetalleVenta> findByProductoIdProducto(Long idProducto);
+}

@@ -7,6 +7,7 @@ import java.util.List;
 public interface TipoProductoRepository extends JpaRepository<TipoProducto, Long> {
     TipoProducto findByObservacion(String observacion);
     ////SANTIAGO MONTENEGRO MODIFICAR PRODUCTO
+    /// esteban moreno tambien ahce uso de este metodo para cerar ventas
     List<TipoProducto> findByPropietarioId(Long idPropietario);
     ////SANTIAGO MONTENEGRO MODIFICAR PRODUCTO FIN
 }

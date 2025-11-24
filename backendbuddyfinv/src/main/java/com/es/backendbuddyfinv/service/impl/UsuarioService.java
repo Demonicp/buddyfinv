@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.es.backendbuddyfinv.dto.UsuarioCrearDTO;
+import com.es.backendbuddyfinv.dto.UsuarioDTOfind;
 import com.es.backendbuddyfinv.model.Rol;
 import com.es.backendbuddyfinv.model.Usuario;
 import com.es.backendbuddyfinv.repository.RolRepository;
@@ -53,6 +55,42 @@ public class UsuarioService {
         return null;
     }
 
+    public Usuario crearEmpleado(Long idAdmin, UsuarioCrearDTO dto){
+        if(usuarioRepository.existsByNitUsuario(dto.getNitUsuario())){
+            throw new RuntimeException("El NIT que desea registrar ya pertenece a un usuario.");
+        }
+
+        if(usuarioRepository.existsByEmail(dto.getEmail())){
+            throw new RuntimeException("El email que desea registrar ya esta asociado a un usuario.");
+        }
+
+        if(usuarioRepository.existsByUsuario(dto.getUsuario())){
+            throw new RuntimeException("El nombre de usurio que desea registrar no esta disponible.");
+        }
+        
+        Usuario admin = usuarioRepository.findById(idAdmin)
+        .orElseThrow(() -> new RuntimeException("administrador no encontrado"));
+
+        Rol rolEmpleado = rolRepository.findByDescripcion("EMPLEADO")
+        .orElseThrow(() -> new RuntimeException("Rol EMPLEADO no encrontrado"));
+
+        Usuario empleado = new Usuario();
+        empleado.setNitUsuario(dto.getNitUsuario());
+        empleado.setNombre(dto.getNombre());
+        empleado.setEmail(dto.getEmail());
+        empleado.setUsuario(dto.getUsuario());
+        empleado.setPassword(dto.getPassword());
+        empleado.setNegocio(admin.getNegocio());
+        empleado.setRol(rolEmpleado);
+        empleado.setAdministrador(admin);
+
+        return usuarioRepository.save(empleado);
+    }
+
+    public List<Usuario> listarEmpleadosPorAdmin(Long idAdmin){
+        return usuarioRepository.findByAdministradorId(idAdmin);
+    }
+
     // Eliminar un usuario
     public boolean deleteUsuario(Long id) {
         if (usuarioRepository.existsById(id)) {
@@ -95,6 +133,9 @@ public class UsuarioService {
         .orElseThrow(() -> new RuntimeException("Rol por defecto o admin no encontrado"));
     }
 
+    public List<UsuarioDTOfind> listarDTOsPorUsuario(Long idPropietario) {
+        return usuarioRepository.findByPropietario(idPropietario);
+    }
     
 
 }

@@ -46,6 +46,14 @@ public class JwtUtil {
         return claims.get("id_Administrador", Long.class);
     }
 
+    public Long getIdAdministrador(String token){
+        Long idAdmin = extraerIdAdministrador(token);
+
+        if(idAdmin == null){
+            idAdmin = extraerIdUsuario(token);
+        }
+        return idAdmin;
+    }
  
     public boolean isTokenValid(String token) {
         try {

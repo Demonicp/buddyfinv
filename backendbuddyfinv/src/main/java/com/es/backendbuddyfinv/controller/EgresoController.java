@@ -220,20 +220,7 @@ public class EgresoController {
         return ResponseEntity.ok(egresosFiltrados );
     }
    
-    @GetMapping("/FiltrarCosto")
-    public ResponseEntity<List<EgresoDTO>> filtrarPorCosto(Long costo) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //verificacion
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long idPropietario = userDetails.getIdUsuario();
-
-        List<EgresoDTO> egresosFiltrados = egresoService.filtrarPorCosto(idPropietario, costo);
-        return ResponseEntity.ok(egresosFiltrados);
-
-        }
+ 
 
 
 
