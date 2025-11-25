@@ -33,6 +33,9 @@
             <span class="cell">{{ venta.empleado }}</span>
             <!-- AGREGADO: mostrar empleadoId también en la fila principal -->
             <span class="cell">{{ venta.empleadoId ?? '—' }}</span>
+            <span class="cell">
+              <RegistroPdfButton :venta="venta" btnClass="btn consultar" />
+            </span>
 
             <transition name="fade">
               <div v-if="ventaSeleccionada === venta.idVenta" class="detalle-expandido">
@@ -42,6 +45,8 @@
                 <p><strong>ID Empleado:</strong> {{ venta.empleadoId ?? '—' }}</p>
                 <p><strong>Método de pago:</strong> {{ venta.metodoPago }}</p>
                 <p><strong>Estado:</strong> {{ venta.estadoVenta }}</p>
+
+
 
                 <table class="detalle-table">
                   <thead>
@@ -80,6 +85,8 @@ defineProps({
 })
 
 import { ref } from 'vue'
+import RegistroPdfButton from './RegistroPdfButton.vue'
+
 const ventaSeleccionada = ref(null)
 
 function toggleDetalle(id) {
@@ -181,8 +188,10 @@ function mostrarAlerta(mensaje) {
 .registro-table .table-header,
 .registro-table .table-row {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  padding: 12px 16px;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0.5%;
+  align-items: center;
+  
   font-size: 14px;
   font-weight: 500;
   border-radius: 8px;

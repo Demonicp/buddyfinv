@@ -16,7 +16,7 @@ import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
 export default {
-  name: 'VentaPdfButton',
+  name: 'RegistroPdfButton',
   props: {
     venta: { type: Object, required: false, default: null },
     filenamePrefix: { type: String, default: 'venta' },
@@ -197,6 +197,10 @@ export default {
 </script>
 
 <style scoped>
-
-button { cursor: pointer; }
+button { 
+  cursor: pointer;
+  height: fit-content;
+  
+  
+}
 </style>

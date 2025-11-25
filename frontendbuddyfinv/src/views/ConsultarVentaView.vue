@@ -40,7 +40,5 @@ onMounted(async () => {
 
 <style scoped>
 
-.consultar-venta-container {
-  height: 100%;
-}
+
 </style>
