@@ -105,12 +105,17 @@ export default {
       try { doc.setFont('helvetica', 'normal') } catch {}
       doc.text(`ID: ${id}`, margin, cursorY); cursorY += 14
       doc.text(`Cliente: ${cliente}`, margin, cursorY); cursorY += 14
+      // AGREGADO: imprimir ID del empleado que realizó la venta (empleadoId)
+      const empleadoId = venta.empleadoId || venta.usuarioId || '—'
+      doc.text(`Empleado ID: ${empleadoId}`, margin, cursorY); cursorY += 14
       doc.text(`Fecha: ${fecha}`, margin, cursorY); cursorY += 14
       doc.text(`Total: ${total}`, margin, cursorY); cursorY += 18
 
       // Preparar tabla
       const head = [['Producto', 'Cantidad', 'Precio unitario', 'Subtotal']]
-      const body = (venta.detalles || []).map(d => {
+      // AGREGADO: soporte para diferentes nombres de propiedad en el objeto venta
+      const detalles = venta.detalles || venta.productos || venta.detallesVentas || []
+      const body = (detalles || []).map(d => {
         const nombre = d.nombreProducto || d.nombre || d.productoNombre || `Producto ${d.productoId || '—'}`
         const cantidad = d.cantidad ?? 0
         const precio = d.precioUnitario ?? d.precio ?? 0

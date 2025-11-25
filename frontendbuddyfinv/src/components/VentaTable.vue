@@ -16,6 +16,7 @@
             <span>Total</span>
             <span>Cliente</span>
             <span>Empleado</span>
+            <span>ID Emp</span>
           </div>
 
           <div
@@ -30,11 +31,15 @@
             <span class="cell">${{ venta.total.toFixed(2) }}</span>
             <span class="cell">{{ venta.cliente || venta.propietario?.nombre || venta.propietario }}</span>
             <span class="cell">{{ venta.empleado }}</span>
+            <!-- AGREGADO: mostrar empleadoId también en la fila principal -->
+            <span class="cell">{{ venta.empleadoId ?? '—' }}</span>
 
             <transition name="fade">
               <div v-if="ventaSeleccionada === venta.idVenta" class="detalle-expandido">
                 <p><strong>Cliente:</strong> {{ venta.cliente || '—' }}</p>
                 <p><strong>Propietario:</strong> {{ venta.propietario?.nombre || venta.propietario }}</p>
+                <!-- AGREGADO: mostrar el id del empleado que realizó la venta (propiedad 'empleadoId' devuelta por el backend) -->
+                <p><strong>ID Empleado:</strong> {{ venta.empleadoId ?? '—' }}</p>
                 <p><strong>Método de pago:</strong> {{ venta.metodoPago }}</p>
                 <p><strong>Estado:</strong> {{ venta.estadoVenta }}</p>
 
@@ -174,7 +179,7 @@ function mostrarAlerta(mensaje) {
 .venta-table .table-header,
 .venta-table .table-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   padding: 12px 16px;
   font-size: 14px;
   font-weight: 500;

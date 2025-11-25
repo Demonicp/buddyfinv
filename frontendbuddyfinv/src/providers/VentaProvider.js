@@ -39,6 +39,8 @@ function authHeaders() {
 export const VentaProvider = {
   // ventas
   async getDetalladas() {
+    // NOTA: El backend ahora devuelve 'empleadoId' (id del usuario/empleado que realizó la venta)
+    // Este provider reenvía la respuesta tal cual al frontend para que los components puedan usar 'empleadoId'.
     const token = localStorage.getItem('token')
     if (!token) throw new Error('Token no disponible')
     const res = await fetch(`${VENTAS_BASE}/detalladas`, {
