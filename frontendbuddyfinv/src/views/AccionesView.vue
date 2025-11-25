@@ -68,10 +68,15 @@ export default {
 </script>
 
 <style scoped>
+.dashboard-container {
+  height: 90% ;
+}
+
 .dashboard-content {
-  padding: 2rem;
+  padding: 1rem;
   max-width: 100vw;
-  margin: 0 auto;
+  height: 90%;
+
   font-family: 'Segoe UI', sans-serif;
 }
 
