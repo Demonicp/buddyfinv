@@ -63,8 +63,8 @@ public class EgresoService {
 
     public List<EgresoDTO> filtrarPorFechas(Long idUsuario, String fechaInicio, String fechaFin) {
         try {
-            LocalDate inicio = LocalDate.parse(fechaInicio);
-            LocalDate fin = LocalDate.parse(fechaFin).plusDays(1);
+            LocalDate inicio = LocalDate.parse(fechaInicio).plusDays(1);
+            LocalDate fin = LocalDate.parse(fechaFin);
             List<Egreso> egresos = egresoRepository.filtrarPorFechas(idUsuario, inicio, fin);
             System.out.println("🧪 Rango final aplicado: " + inicio + " hasta " + fin);
 
@@ -78,7 +78,31 @@ public class EgresoService {
         }
     }
     
-   
+    
+    public List<EgresoDTO> filtrar(Long idUsuario, String fechaInicio, String fechaFin, String categoria, String metodoPago) {
+        try {
+            LocalDate inicio = LocalDate.parse(fechaInicio).plusDays(1);
+            LocalDate fin = LocalDate.parse(fechaFin);
+    
+            // Normalizar filtros opcionales
+            if (categoria != null && categoria.isBlank()) categoria = null;
+            if (metodoPago != null && metodoPago.isBlank()) metodoPago = null;
+    
+            List<Egreso> egresos = egresoRepository.filtrar(idUsuario, inicio, fin, categoria, metodoPago);
+    
+            System.out.println("🧪 Rango final aplicado: " + inicio + " hasta " + fin);
+            System.out.println("Categoria aplicada: " + categoria);
+            System.out.println("Metodo de pago aplicado: " + metodoPago);
+    
+            return egresos.stream()
+                          .map(EgresoDTO::new)
+                          .collect(Collectors.toList());
+        } catch (DateTimeParseException e) {
+            System.err.println("❌ Error al convertir fechas: " + e.getMessage());
+            return List.of(); // Devuelve lista vacía si hay error
+        }
+    }
+    
     
 
     public List<Egreso> ListarEgresosXusuario(Long idPropietario){

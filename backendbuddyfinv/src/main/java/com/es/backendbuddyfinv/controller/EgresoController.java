@@ -1,6 +1,7 @@
 package com.es.backendbuddyfinv.controller;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.es.backendbuddyfinv.dto.EgresoDTO;
@@ -220,8 +222,49 @@ public class EgresoController {
         return ResponseEntity.ok(egresosFiltrados );
     }
    
- 
+    @GetMapping("/filtrarBusqueda")
+public ResponseEntity<?> filtrar(
+        @RequestParam String fechaInicio,
+        @RequestParam String fechaFin,
+        @RequestParam(required = false) String categoria,
+        @RequestParam(required = false) String metodoPago) {
 
+    try {
+        // Validar autenticación
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+        }
+
+        // Parsear fechas
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = LocalDate.parse(fechaFin);
+
+        // Validaciones de rango
+        if (inicio.isAfter(fin)) {
+            return ResponseEntity.badRequest().body("❌ La fecha de inicio no puede ser mayor que la fecha final");
+        }
+        if (fin.isBefore(inicio)) {
+            return ResponseEntity.badRequest().body("❌ La fecha final no puede ser menor que la fecha de inicio");
+        }
+
+        // Obtener usuario autenticado
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long idPropietario = userDetails.getIdUsuario();
+
+        // Llamar al service
+        List<EgresoDTO> egresosFiltrados = egresoService.filtrar(idPropietario, fechaInicio, fechaFin, categoria, metodoPago);
+        return ResponseEntity.ok(egresosFiltrados);
+
+    } catch (DateTimeParseException e) {
+        return ResponseEntity.badRequest().body("❌ Formato de fecha inválido. Use YYYY-MM-DD");
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("❌ Error inesperado: " + e.getMessage());
+    }
+}
+
+    
+    
 
 
         
