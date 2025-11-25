@@ -1,5 +1,6 @@
 package com.es.backendbuddyfinv.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -39,4 +40,29 @@ List<Venta> findVentasDetalladasByPropietarioId(@Param("idPropietario") Long idP
     List<Venta> findByPropietarioId(Long PropietarioId);
 
     List<Venta> findByUsuarioId(Long usuarioId);
+
+    /*@Query("""
+    SELECT DISTINCT v FROM Venta v
+    JOIN FETCH v.detalleVentas dv
+    JOIN FETCH dv.producto
+    JOIN FETCH v.usuario
+    JOIN FETCH v.metodoPago
+    JOIN FETCH v.estadoVenta
+    WHERE v.propietario.id = :idPropietario
+    AND (:idVenta IS NULL OR v.idVenta = :idVenta)
+    AND (:desde IS NULL OR v.fecha >= :desde)
+    AND (:hasta IS NULL OR v.fecha <= :hasta)
+    AND (:totalMin IS NULL OR v.total >= :totalMin)
+    AND (:totalMax IS NULL OR v.total <= :totalMax)
+    ORDER BY v.fecha DESC
+""")
+List<Venta> filtrarVentas(
+    @Param("idPropietario") Long idPropietario,
+    @Param("idVenta") Long idVenta,
+    @Param("desde") LocalDateTime desde,
+    @Param("hasta") LocalDateTime hasta,
+    @Param("totalMin") Double totalMin,
+    @Param("totalMax") Double totalMax,
+    @Param("metodoPago") String metodoPago
+);*/
 }

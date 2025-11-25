@@ -14,9 +14,8 @@ public class VentaFiltrarDTO {
     private Double totalMinimo;
     private Double totalMaximo;
     private String estadoVenta;
+    private String metodoPago;
 
-    public VentaFiltrarDTO(com.es.backendbuddyfinv.model.Venta venta) {
-        this.idVenta = venta.getIdVenta();
-    }
+ 
     
 }
