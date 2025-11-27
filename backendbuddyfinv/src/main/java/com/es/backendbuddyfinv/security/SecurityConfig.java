@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .requestMatchers("ventas/crearVenta").authenticated()
 
                 .requestMatchers("/Egresos/**").authenticated()
-                .requestMatchers("/ingresos/**").permitAll()
+                .requestMatchers("/ingresos/**").hasRole("ADMIN")
                 .requestMatchers("/tipo-egresos/**").permitAll()
                 .requestMatchers("/tipo-producto/**").hasRole("ADMIN")
                 .requestMatchers("/estado-producto/**").authenticated()
