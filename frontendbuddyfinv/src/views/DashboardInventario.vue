@@ -86,6 +86,8 @@ const irAReabastecerProducto = () => router.push({ name: 'ReabastecerProducto' }
 </script>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 .cards-container {
   display: flex;
   flex-direction: column;
@@ -100,7 +102,7 @@ const irAReabastecerProducto = () => router.push({ name: 'ReabastecerProducto' }
 
 .dashboard-content {
   padding: 2rem;
-  max-width: 1200px;
+  font-family: 'Outfit', sans-serif;
   margin: 0 auto;
 }
 

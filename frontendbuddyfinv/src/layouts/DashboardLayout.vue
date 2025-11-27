@@ -2,6 +2,7 @@
   <div class="layout">
     <aside class="sidebar">
       <h2 class="logo">BUDDYFINV</h2>
+      
       <nav>
         <button
           v-if="rolUsuario === 'ADMIN'"
@@ -30,9 +31,9 @@
 
            <!-- Juan daviiiiiiiiiiiid modifique este boton que lo que hace es que me redirija al dashboardconfiguracion  -->
         <button @click="ir('dashboardConfiguracion')" :class="{ activo: ruta === 'dashboardConfiguracion' }">
-  <IconConfiguracion />
-  <span>CONFIGURACION</span>
-</button>
+          <IconConfiguracion />
+          <span>CONFIGURACION</span>
+        </button>
 
       </nav>
       <button class="cerrar-sesion" @click="confirmLogout = true ">
@@ -162,58 +163,78 @@ export default {
 </script>
   
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 .layout {
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
   display: flex;
-  width: 100vw;
   height: 100vh;
+  width: 100vw;
+
 
   font-family: 'Segoe UI', sans-serif;
   background-color: #fdf6ec;
 }
 
 .sidebar {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
   width: 240px;
   background-color: #fff3d4;
-  padding: 1.5rem;
+  border-radius: 10px;
+  border-color: #333  ;
+  padding: 1.1rem;
   display: flex;
+  text-align: center;
   flex-direction: column;
-  justify-content: space-between;
+
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.9rem;
   color: #d35400;
+  border-radius: 10px;
+  border-color: #d35400;
+  border-width: 1px;
+  font-weight: 800;
+  font-family: 'Outfit', sans-serif;
   margin-bottom: 2rem;
 }
 
 nav button {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
   background: none;
   border: none;
-  padding: 0.8rem;
+  padding: 0.7rem;
   text-align: left;
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #a84300;
   cursor: pointer;
   border-radius: 6px;
   margin-bottom: 0.5rem;
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.75rem;
   width: 100%;
   transition: background-color 0.2s;
 }
 
 nav button svg {
+  font-weight: 800;
   flex-shrink: 0;
 }
 
 nav button.activo {
+  font-weight: 800;
   background-color: #f8e0c0;
   font-weight: bold;
 }
 
 nav button:hover {
+  font-weight: 800;
   background-color: #ffe6cc;
 }
 
@@ -224,6 +245,7 @@ nav button:hover {
 }
 
 .cerrar-sesion {
+  font-weight: 800;
   background-color: #e74c3c;
   color: white;
   border: none;
@@ -234,6 +256,7 @@ nav button:hover {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin-top: 30rem;
   width: 100%;
   justify-content: center;
 }
@@ -250,6 +273,8 @@ nav button:hover {
 }
 
 .top-bar {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -260,6 +285,8 @@ nav button:hover {
 
 .fecha-hora,
 .usuario-info {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
   font-size: 1.2rem;
   color: #333;
   font-weight: 500;
@@ -270,6 +297,8 @@ nav button:hover {
 
 /* Modal de confirmación */
 .confirm-overlay {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
   position: fixed;
   top: 0;
   left: 0;
@@ -283,6 +312,8 @@ nav button:hover {
 }
 
 .confirm-box {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
   background: #fff;
   color: black;
   padding: 1.5rem 2rem;
@@ -299,7 +330,7 @@ nav button:hover {
 }
 
 .btn-confirm {
-  background: #ffbc21;
+  background: #ffaa21;
   color: rgb(255, 255, 255);
   font-weight: bold;
   border: none;

@@ -1,4 +1,5 @@
 <template>
+
   <div class="venta-form">
     <form @submit.prevent="submit" novalidate>
       <!-- Nombre Cliente -->
@@ -63,42 +64,7 @@
       </div>
 
       <!-- Lista de productos seleccionados -->
-      <div class="detalles">
-        <h4>Productos en la venta</h4>
-        <div v-if="detallesSeleccionados.length === 0" class="muted">No hay productos seleccionados</div>
-
-        <div
-          class="detalle-row"
-          v-for="(d, idx) in detallesSeleccionados"
-          :key="d.productoId || idx"
-        >
-          <div class="detalle-info">
-            <strong>{{ d.nombreProducto || d.nombre || ('Producto ' + d.productoId) }}</strong>
-            <div class="muted">{{ d.descripcion || '' }}</div>
-            <div class="muted" v-if="d.precioUnitario !== undefined">
-              <small>Precio unitario: {{ formatPrecio(d.precioUnitario) }}</small>
-            </div>
-            <div class="helper" v-if="fieldErrors[`producto_${idx}`]">{{ fieldErrors[`producto_${idx}`] }}</div>
-          </div>
-
-          <div class="detalle-cantidad">
-            <input
-              type="number"
-              min="1"
-              v-model.number="d.cantidad"
-              @input="clearFieldError(`cantidad_${idx}`)"
-              @change="onUpdateCantidad({ index: idx, cantidad: d.cantidad })"
-              :class="{ invalid: fieldErrors[`cantidad_${idx}`] }"
-              :aria-invalid="fieldErrors[`cantidad_${idx}`] ? 'true' : 'false'"
-            />
-            <div class="helper" v-if="fieldErrors[`cantidad_${idx}`]">{{ fieldErrors[`cantidad_${idx}`] }}</div>
-          </div>
-
-          <div class="detalle-actions">
-            <button type="button" class="btn-link" @click="onRemoveDetalle(idx)">Eliminar</button>
-          </div>
-        </div>
-      </div>
+      
 
       <!-- Acciones: cancelar y crear -->
       <div class="actions">
@@ -123,12 +89,12 @@
         <section class="modal-body">
           <!-- PREVIEW: antes de crear -->
           <div v-if="!ventaCreada">
-            <p><strong>Cliente:</strong> {{ ventaCrear.cliente }}</p>
-            <p><strong>Método de pago:</strong> {{ metodoPagoNombre }}</p>
-            <p><strong>Estado:</strong> {{ estadoVentaNombre }}</p>
-            <p v-if="attendantId || ventaCrear.atendidoPorId"><strong>ID Empleado:</strong> {{ ventaCrear.atendidoPorId || attendantId }}</p>
-
-            <h4>Productos </h4>
+            <div class="registarventacard">
+              <p><strong>Cliente:</strong> {{ ventaCrear.cliente }}</p>
+              <p><strong>Método de pago:</strong> {{ metodoPagoNombre }}</p>
+              <p><strong>Estado:</strong> {{ estadoVentaNombre }}</p>
+              <p v-if="attendantId || ventaCrear.atendidoPorId"><strong>ID Empleado:</strong> {{ ventaCrear.atendidoPorId || attendantId }}</p>
+            </div>
             <div v-if="previewItems.length === 0" class="muted">No hay productos para previsualizar</div>
 
             <table v-else class="confirm-table">
@@ -225,7 +191,6 @@
     </div>
 
     <!-- Resumen final (opcional) -->
-    <venta-summary v-if="ventaCreada" :venta="ventaCreada" />
 
     <!-- Toast centrado (aparece en el medio de la pantalla) -->
     <div v-if="showSuccessToast" class="success-toast-center" role="status" aria-live="polite">
@@ -242,7 +207,49 @@
       filenamePrefix="factura"
       style="display:none"
     />
+          
+    <!--division en columnas para usar el ancho de la pantalla by estebanquito-->
+    <div class="detallelist">
+      
+      <div class="detalles">
+          
+          <div v-if="detallesSeleccionados.length === 0" class="muted">No hay productos seleccionados</div>
+
+          <div
+            class="detalle-row"
+            v-for="(d, idx) in detallesSeleccionados"
+            :key="d.productoId || idx"
+          >
+            <div class="detalle-info">
+              <strong>{{ d.nombreProducto || d.nombre || ('Producto ' + d.productoId) }}</strong>
+              <div class="muted">{{ d.descripcion || '' }}</div>
+              <div class="muted" v-if="d.precioUnitario !== undefined">
+                <small>Precio unitario: {{ formatPrecio(d.precioUnitario) }}</small>
+              </div>
+              <div class="helper" v-if="fieldErrors[`producto_${idx}`]">{{ fieldErrors[`producto_${idx}`] }}</div>
+            </div>
+
+            <div class="detalle-cantidad">
+              <input
+                type="number"
+                min="1"
+                v-model.number="d.cantidad"
+                @input="clearFieldError(`cantidad_${idx}`)"
+                @change="onUpdateCantidad({ index: idx, cantidad: d.cantidad })"
+                :class="{ invalid: fieldErrors[`cantidad_${idx}`] }"
+                :aria-invalid="fieldErrors[`cantidad_${idx}`] ? 'true' : 'false'"
+              />
+              <div class="helper" v-if="fieldErrors[`cantidad_${idx}`]">{{ fieldErrors[`cantidad_${idx}`] }}</div>
+            </div>
+
+            <div class="detalle-actions">
+              <button type="button" class="btn-link" @click="onRemoveDetalle(idx)">Eliminar</button>
+            </div>
+          </div>
+      </div>
+    </div>  
   </div>
+  
 </template>
 
 <script>
@@ -871,19 +878,25 @@ export default {
 </script>
 
 <style scoped>
-/* ---------------------------
-   VentaForm - tema naranja / negro
-   --------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+
+
 .venta-form {
-  width: 90%;
-  max-width: 1200px;
+  font-family: 'Outfit', sans-serif;
+  display: flex;
+  width: 100%;
+  gap: 5%;
+
   margin: 24px auto;
   padding: 20px;
+  height: 100%;
   background: linear-gradient(180deg,#fffaf3 0%, #fff 100%);
   border-radius: 14px;
   border: 1px solid #f5cba7;
   box-shadow: 0 12px 30px rgba(0,0,0,0.06);
-  font-family: 'Segoe UI', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: 'Outfit', sans-serif;
   color: #111;
   box-sizing: border-box;
 }
@@ -955,45 +968,74 @@ export default {
   margin-top: 6px;
 }
 
+
+.detallelist{
+  
+
+    gap: 10px;
+    text-align: left;
+    align-items: center;
+    
+    background-color: #ffffff;
+    width: 60%;
+    padding: 20px;
+    border-radius: 14px;
+    margin-left: 20px;
+    border: 1px solid #d2d2d2;
+    box-shadow: #e0e0e0 0px 1px 1px;
+}
 /* Detalles list */
 .detalles {
-  margin-top: 12px;
+
+  display: grid;
+   
+  width: 98%;
+  
 }
 .detalles h4 {
-  margin: 0 0 8px 0;
-  font-weight: 800;
+  
+  font-weight: 700;
   color: #111;
 }
 .detalle-row {
+
+  background-color:#ffffff;
   display: flex;
-  gap: 12px;
   align-items: center;
-  padding: 12px;
-  border-radius: 10px;
-  background: linear-gradient(180deg,#fff,#fffaf3);
-  border: 1px solid #f5e0c8;
+
+  gap: 12px;
+;
+  padding: 1%;
+  border-radius: 15px;
+
+  border: 1px solid #e3e3e3;
   margin-bottom: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
-.detalle-info { flex: 1; min-width: 0; }
-.detalle-info strong { display: block; font-weight: 800; color: #111; }
+.detalle-info { flex: 1; min-width: 0; align-items: center; }
+.detalle-info strong {  font-weight: 800; color: #111; }
 .detalle-info .muted { color: #666; font-size: 0.92rem; }
+
 .detalle-cantidad input {
+  
   width: 96px;
   padding: 8px;
+
   border-radius: 8px;
-  border: 1px solid #f5cba7;
+  border: 1px solid #e5e5e5;
   font-size: 0.95rem;
   color: #111;
 }
-.detalle-actions { white-space: nowrap; }
+.detalle-actions { white-space: nowrap;
+}
 
 /* Actions: separación entre botones */
 .actions {
+
   margin-top: 16px;
   display: flex;
   gap: 12px; /* separación solicitada */
-  justify-content: flex-end;
+
 }
 
 /* Botones */
@@ -1030,6 +1072,8 @@ button.btn-secondary {
   background: transparent;
   border: 0;
   color: #e67e22;
+  font-size: 1.2rem;
+  
   font-weight: 800;
 }
 
@@ -1044,18 +1088,19 @@ button.btn-secondary {
 /* Tablas de confirmación / preview */
 .confirm-table{
   border-collapse: separate;
+  font-family: 'Outfit', sans-serif;
   border-spacing: 0;
   margin-top: 12px;
   background: #ffffff;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
   width: 100%;
   
 }
 .detalle-table {
 
-  border-collapse: separate;
+
   border-spacing: 0;
   margin-top: 12px;
   background: #ffffff;
@@ -1066,20 +1111,21 @@ button.btn-secondary {
 }
 .confirm-table thead th,
 .detalle-table thead th {
-  background: linear-gradient(180deg,#f8c471,#f5cba7);
-  color: #4d2c0c;
+  background-color: #ec8900;
+  color: #ffffff;
   padding: 12px 14px;
-  text-align: left;
-  font-size: 13px;
+  text-align: right;
+  font-size: 1rem;
   font-weight: 800;
 }
 .confirm-table td,
 .detalle-table td {
   padding: 12px 14px;
-  font-size: 13px;
+  font-size: 1rem;
   color: #111;
-  border-top: 1px solid #f0e6d6;
-  background: linear-gradient(180deg,#fff,#fffaf3);
+  text-align: right;
+
+  background:#fff;
 }
 .td-right { text-align: right; }
 .td-center { text-align: center; }
@@ -1111,8 +1157,8 @@ button.btn-secondary {
   border: 1px solid #f5cba7;
   box-shadow: 0 30px 60px rgba(0,0,0,0.18);
 }
-.modal-header { padding: 14px 18px; border-bottom: 1px solid #f0e6d6; }
-.modal-header h3 { margin: 0; font-size: 1.05rem; color: #111; font-weight: 800; }
+.modal-header { padding: 14px 18px; border-bottom: 1px solid #e67e22;background-color: #e67e22; }
+.modal-header h3 { margin: 0; font-size: 1.05rem; color: #ffffff; font-weight: 800; }
 .modal-body { padding: 16px 18px; max-height: 68vh; overflow: auto; }
 .modal-footer { padding: 12px 18px; border-top: 1px solid #f0e6d6; display: flex; gap: 10px; justify-content: flex-end; }
 
@@ -1182,5 +1228,11 @@ button.btn-secondary {
 .field input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.registarventacard {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  font-weight: bold;
 }
 </style>

@@ -117,7 +117,7 @@ function resetFilters() {
 <style scoped>
 .venta-filtros {
   width: 100%;
-  height: 100%;
+  height: 20%;
   background: #fffaf3;
   padding: 14px 18px;
   border-radius: 12px;

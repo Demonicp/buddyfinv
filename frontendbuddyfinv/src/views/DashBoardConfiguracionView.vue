@@ -57,9 +57,10 @@
   </script>
   
   <style scoped>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
   .dashboard-content {
     padding: 2rem;
-    max-width: 1200px;
+    font-family: 'Outfit', sans-serif;
     margin: 0 auto;
   }
   .dashboard-title {
@@ -67,7 +68,7 @@
     font-weight: bold;
     color: #333;
     margin-bottom: 0.5rem;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Outfit', sans-serif;
   }
   .dashboard-subtitle {
     font-size: 1rem;
