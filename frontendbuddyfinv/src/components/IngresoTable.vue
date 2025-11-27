@@ -39,6 +39,7 @@ import { IngresoProvider } from '../providers/IngresoProvider.js'
 
 export default {
   name: 'IngresoTable',
+
   data() {
     return {
       ingresos: [],
@@ -46,9 +47,11 @@ export default {
       fechaFin: ''
     }
   },
+
   async mounted() {
     await this.cargarTodos()
   },
+
   methods: {
     async cargarTodos() {
       try {
@@ -58,8 +61,10 @@ export default {
         console.error('Error al obtener ingresos:', error.message)
       }
     },
+
     async buscarPorRango() {
       if (!this.fechaInicio || !this.fechaFin) return
+
       try {
         const data = await IngresoProvider.getByRango(this.fechaInicio, this.fechaFin)
         this.ingresos = Array.isArray(data) ? data : []
@@ -67,6 +72,7 @@ export default {
         console.error('Error al filtrar ingresos:', error.message)
       }
     },
+
     async limpiarFiltros() {
       this.fechaInicio = ''
       this.fechaFin = ''

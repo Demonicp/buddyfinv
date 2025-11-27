@@ -43,6 +43,7 @@ public class VentaController {
     
        
     
+        // NOTE: `listarVentasDetalladas` now includes `empleadoId` in the returned DTOs
         List<VentaDetalladaDTO> ventas = ventaService.listarVentasDetalladas(idPropietario);
         return ResponseEntity.ok(ventas);
     }

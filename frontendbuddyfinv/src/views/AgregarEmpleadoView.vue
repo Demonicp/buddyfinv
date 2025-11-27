@@ -37,7 +37,24 @@
             </div>
           </div>
 
-          <button :disabled="submitting">{{ submitting ? 'Creando...' : 'Crear empleado' }}</button>
+          <div class="botones">
+            <button 
+              type="submit"
+              class="btn-confirmar"
+              :disabled="submitting"
+            >
+              {{ submitting ? 'Creando...' : 'Confirmar' }}
+            </button>
+
+            <button 
+              type="button"
+              class="btn-cancelar"
+              @click="cancelar"
+            >
+              Cancelar
+            </button>
+          </div>
+
           <p :class="{'mensaje-success': success, 'mensaje-error': !success && mensaje}" v-if="mensaje">{{ mensaje }}</p>
         </form>
       </div>
@@ -97,13 +114,29 @@
           // limpiar form
           this.form = { nitUsuario: '', nombre: '', email: '', usuario: '', password: '' }
           // opcional: redirigir a lista
-          setTimeout(() => this.$router.push({ name: 'Usuario' }), 1000)
+          setTimeout(() => this.$router.push({ name: 'ListaEmpleados' }), 1000)
         } catch (err) {
           this.mensaje = err.message || 'Error al crear empleado.'
           this.success = false
         } finally {
           this.submitting = false
         }
+      },
+      cancelar() {
+        // Limpia todos los campos
+        this.form = {
+          nitUsuario: '',
+          nombre: '',
+          email: '',
+          usuario: '',
+          password: ''
+        }
+
+        // Limpia errores y mensajes
+        this.errors = {}
+        this.mensaje = ''
+        this.success = false
+        this.$router.push({ name: 'ListaEmpleados' });
       }
     }
   }
@@ -178,4 +211,40 @@ button:hover{
 input {
   color: #000 !important;
 }
+.botones {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+}
+
+.btn-confirmar {
+  flex: 1;
+  padding: 12px;
+  background: #ff8800;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  transition: .2s;
+}
+
+.btn-confirmar:hover {
+  background: #e56f00;
+}
+
+.btn-cancelar {
+  flex: 1;
+  padding: 12px;
+  background: #777;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  transition: .2s;
+}
+
+.btn-cancelar:hover {
+  background: #555;
+}
+
 </style>

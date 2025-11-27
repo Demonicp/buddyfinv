@@ -9,19 +9,11 @@ import com.es.backendbuddyfinv.dto.UsuarioCrearDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,10 +21,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.es.backendbuddyfinv.dto.UsuarioDTO;
 import com.es.backendbuddyfinv.dto.UsuarioDTOfind;
+import com.es.backendbuddyfinv.dto.UsuarioResponseDTO;
 import com.es.backendbuddyfinv.model.Usuario;
 import com.es.backendbuddyfinv.security.CustomUserDetails;
 import com.es.backendbuddyfinv.security.JwtUtil;
 import com.es.backendbuddyfinv.service.impl.UsuarioService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/usuarios")       
@@ -109,13 +104,17 @@ public class UsuarioController {
                       .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/agregar")
-    public ResponseEntity<?> crearEmpleado(@RequestBody UsuarioCrearDTO dto, @RequestHeader("Authorization") String authHeader){
-        long idAdmin= obtenerAdministradorDesdeToken(authHeader);
+    //tuve que crear el DTOresponse para usuario ya que estaba anidando y generaba el error de json /BY ESTEBAN MORENO
+    @PostMapping(value = "/agregar", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UsuarioResponseDTO> crearEmpleado(
+        @Valid @RequestBody UsuarioCrearDTO dto,
+        @RequestHeader("Authorization") String authHeader) {
 
+        long idAdmin = obtenerAdministradorDesdeToken(authHeader);
         Usuario nuevoEmpleado = usuarioService.crearEmpleado(idAdmin, dto);
 
-        return ResponseEntity.ok(nuevoEmpleado);
+        UsuarioResponseDTO resp = UsuarioResponseDTO.fromEntity(nuevoEmpleado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(resp);
     }
 
     @GetMapping("/empleados")

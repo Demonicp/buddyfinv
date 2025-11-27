@@ -205,6 +205,11 @@
 
         <footer class="modal-footer">
           <template v-if="!ventaCreada">
+            <!-- Checkbox para solicitar factura (colocar antes del footer del modal) -->
+            <div v-if="!ventaCreada" style="margin:10px 0; display:flex; align-items:center; gap:10px;">
+              <input id="solicitaFactura" type="checkbox" v-model="solicitaFactura" />
+              <label for="solicitaFactura" style="font-weight:700; color:#333;">Generar Factura</label>
+            </div>
             <button type="button" class="btn-secondary" @click="cancelConfirm" :disabled="confirmLoading">Cancelar</button>
             <button type="button" class="btn-primary" @click="confirmCreate" :disabled="confirmLoading">
               <span v-if="confirmLoading">Confirmando...</span>
@@ -229,6 +234,14 @@
         <div class="toast-text">{{ successMessage }}</div>
       </div>
     </div>
+    <!-- Componente oculto para descarga automática tras crear la venta -->
+    <VentaPdfButton
+      v-if="ventaCreada"
+      ref="pdfButtonAfterCreate"
+      :venta="ventaCreada"
+      filenamePrefix="factura"
+      style="display:none"
+    />
   </div>
 </template>
 
@@ -242,7 +255,10 @@ import { fetchMetodosPago } from '@/providers/MetodoPagoProvider'
 import { fetchEstadosVenta } from '@/providers/EstadoVentaProvider'
 import ProductoSelector from '@/components/ProductoSelector.vue'
 import VentaSummary from '@/components/VentaSummary.vue'
-
+//imports para feature imprimir pdf by esteban begin
+import VentaPdfButton from '@/components/VentaPdfButton.vue'
+//imports esteban feature end
+ 
 /**
  * Decodifica el payload de un JWT (base64url) y devuelve el id del usuario si existe.
  */
@@ -266,7 +282,7 @@ function getUserIdFromToken() {
 
 export default {
   name: 'VentaForm',
-  components: { ProductoSelector, VentaSummary },
+  components: { ProductoSelector, VentaSummary, VentaPdfButton },
   data() {
     return {
       ventaCrear: new VentaCrearDTO(),
@@ -275,6 +291,8 @@ export default {
       metodosPago: [],
       estadosVenta: [],
       selectedProducto: null,
+      //estado para imprimir factura by esteban, al cambiar descar la factura
+      solicitaFactura: false,
 
       // UI / errores
       loading: false,
@@ -693,6 +711,8 @@ export default {
       this.confirmError = null
       this.confirmLoading = true
 
+      
+
       try {
         // refrescar y asignar id del atendedor justo antes de enviar
         this.attendantId = getUserIdFromToken() ?? this.attendantId
@@ -739,14 +759,38 @@ export default {
           this.ventaCreada.total = this.ventaCreada.detalles.reduce((s, it) => s + (Number(it.precioUnitario || 0) * Number(it.cantidad || 0)), 0)
         }
 
+
+
         // incluir id del atendedor en la respuesta mostrada si no viene del backend
         if (!this.ventaCreada.atendidoPorId && this.attendantId) {
           try { this.ventaCreada.atendidoPorId = this.attendantId } catch (e) {}
         }
 
+                // si el cliente solicitó factura, invocamos la descarga automática
+        if (this.solicitaFactura && this.ventaCreada) {
+          try {
+            // si usas v-if en el componente hijo, esperar a que se monte
+            await this.$nextTick()
+
+            const btn = this.$refs.pdfButtonAfterCreate
+            if (btn && typeof btn.descargarVentaPDF === 'function') {
+              // esperar a que termine la generación/descarga antes de limpiar
+              await btn.descargarVentaPDF(this.ventaCreada)
+              this.showSuccess && this.showSuccess(`PDF generado para venta ${this.ventaCreada.idVenta || this.ventaCreada.id || ''}`)
+            } else {
+              // fallback: emitir evento o generar aquí
+              this.$emit('request-pdf', this.ventaCreada)
+            }
+          } catch (err) {
+            console.error('Error al generar PDF automáticamente:', err)
+            this.confirmError = this.confirmError || 'No se pudo generar el PDF automáticamente.'
+          }
+        }
+
         if (this.ventaCreada && (this.ventaCreada.idVenta || this.ventaCreada.id)) {
           this.$emit('created', this.ventaCreada.idVenta || this.ventaCreada.id)
         }
+
 
         // mostrar toast de éxito centrado con el ID de la venta creada
         const ventaId = this.ventaCreada?.idVenta || this.ventaCreada?.id || '?'

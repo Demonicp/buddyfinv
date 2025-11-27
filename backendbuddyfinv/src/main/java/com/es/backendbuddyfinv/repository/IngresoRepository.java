@@ -10,14 +10,9 @@ import java.util.List;
 
 @Repository
 public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
-    boolean existsByFecha(LocalDate fecha);
-    boolean existsByTotalDiario(double totalDiario);
-    boolean existsByTotalFacturas(int totalFacturas);
-    boolean existsByFechaAndTotalDiarioAndTotalFacturas(LocalDate fecha, double totalDiario, int totalFacturas);
-    Ingreso findByFecha(LocalDate fecha);
-    /**
-     * Buscar ingresos entre dos fechas.
-     */
+
+    List<Ingreso> findByPropietarioId(Long idPropietario);
+
     @Query("""
         SELECT i
         FROM Ingreso i

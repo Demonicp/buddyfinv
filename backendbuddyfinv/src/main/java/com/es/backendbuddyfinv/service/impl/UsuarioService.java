@@ -74,9 +74,18 @@ public class UsuarioService {
     }
 
     public Usuario crearEmpleado(Long idAdmin, UsuarioCrearDTO dto){
-        if(usuarioRepository.existsByUsuarioOrEmail(dto.getUsuario(), dto.getEmail())){
-            throw new RuntimeException("Usuario o email ya existe");
+        if(usuarioRepository.existsByNitUsuario(dto.getNitUsuario())){
+            throw new RuntimeException("El NIT que desea registrar ya pertenece a un usuario.");
         }
+
+        if(usuarioRepository.existsByEmail(dto.getEmail())){
+            throw new RuntimeException("El email que desea registrar ya esta asociado a un usuario.");
+        }
+
+        if(usuarioRepository.existsByUsuario(dto.getUsuario())){
+            throw new RuntimeException("El nombre de usurio que desea registrar no esta disponible.");
+        }
+        
         Usuario admin = usuarioRepository.findById(idAdmin)
         .orElseThrow(() -> new RuntimeException("administrador no encontrado"));
 
