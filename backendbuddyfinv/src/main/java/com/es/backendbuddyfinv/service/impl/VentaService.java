@@ -78,13 +78,15 @@ public class VentaService {
                 ))
                 .collect(Collectors.toList());
     
+            // AGREGADO: incluir id del usuario (empleado) que hizo la venta en el DTO
             return new VentaDetalladaDTO(
                 v.getIdVenta(),
                 v.getFecha(),
                 v.getTotal(),
                 v.getEstadoVenta().getObservacion(),
                 v.getMetodoPago().getDescripcion(),
-                v.getUsuario().getNombre(),
+                v.getUsuario() != null ? v.getUsuario().getNombre() : null,
+                (v.getUsuario() != null && v.getUsuario().getId() != null) ? v.getUsuario().getId() : null, // empleadoId (seguro)
                 v.getCliente(),
                 productos
             );

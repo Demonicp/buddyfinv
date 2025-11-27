@@ -1,15 +1,15 @@
 <template>
-  <div class="venta-wrapper">
-    <div class="venta-card">
-      <h2 class="venta-title">Listado de Ventas</h2>
+  <div class="registro-wrapper">
+    <div class="registro-card">
 
-      <div class="venta-actions">
-        <button class="btn limpiar" @click="mostrarAlerta('Limpiar Filtros')">Limpiar Filtros</button>
-        <button class="btn consultar" @click="mostrarAlerta('Consultar Venta')">Consultar Venta</button>
+
+      <div class="registro-actions">
+
+
       </div>
 
-      <div class="venta-scroll">
-        <div class="venta-table">
+      <div class="registro-scroll">
+        <div class="registro-table">
           <div class="table-header" role="row">
             <span>ID</span>
             <span>Fecha y Hora</span>
@@ -33,15 +33,20 @@
             <span class="cell">{{ venta.empleado }}</span>
             <!-- AGREGADO: mostrar empleadoId también en la fila principal -->
             <span class="cell">{{ venta.empleadoId ?? '—' }}</span>
+            <span class="cell">
+              <RegistroPdfButton :venta="venta" btnClass="btn consultar" />
+            </span>
 
             <transition name="fade">
               <div v-if="ventaSeleccionada === venta.idVenta" class="detalle-expandido">
                 <p><strong>Cliente:</strong> {{ venta.cliente || '—' }}</p>
-                <p><strong>Propietario:</strong> {{ venta.propietario?.nombre || venta.propietario }}</p>
+
                 <!-- AGREGADO: mostrar el id del empleado que realizó la venta (propiedad 'empleadoId' devuelta por el backend) -->
                 <p><strong>ID Empleado:</strong> {{ venta.empleadoId ?? '—' }}</p>
                 <p><strong>Método de pago:</strong> {{ venta.metodoPago }}</p>
                 <p><strong>Estado:</strong> {{ venta.estadoVenta }}</p>
+
+
 
                 <table class="detalle-table">
                   <thead>
@@ -51,7 +56,7 @@
                       <th>Cantidad</th>
                       <th>Precio Unitario</th>
                       <th>Subtotal</th>
-                      <th>Estado</th>
+
                     </tr>
                   </thead>
                   <tbody>
@@ -61,7 +66,7 @@
                       <td>{{ producto.cantidad }}</td>
                       <td>${{ producto.precioUnitario?.toFixed(2) || '—' }}</td>
                       <td>${{ producto.subtotal.toFixed(2) }}</td>
-                      <td>{{ producto.estadoProducto }}</td>
+
                     </tr>
                   </tbody>
                 </table>
@@ -80,6 +85,8 @@ defineProps({
 })
 
 import { ref } from 'vue'
+import RegistroPdfButton from './RegistroPdfButton.vue'
+
 const ventaSeleccionada = ref(null)
 
 function toggleDetalle(id) {
@@ -93,22 +100,24 @@ function mostrarAlerta(mensaje) {
 
 
 <style scoped>
-.venta-wrapper {
-  width: 90%;
-  max-width: 1200px;
-  margin: 40px auto;
+.registro-wrapper {
+  width: 100%;
+  height: 100%;
+
+  margin: 10px auto;
   font-family: 'Segoe UI', sans-serif;
 }
 
-.venta-card {
+.registro-card {
   background: #fffaf3;
   padding: 20px;
+  
   border-radius: 16px;
   box-shadow: inset 0 0 0 2px #f8c471;
-  border: 1px solid #f5cba7;
+
 }
 
-.venta-title {
+.registro-title {
   text-align: center;
   color: #e67e22;
   margin-bottom: 20px;
@@ -116,7 +125,7 @@ function mostrarAlerta(mensaje) {
   font-weight: bold;
 }
 
-.venta-actions {
+.registro-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -145,15 +154,16 @@ function mostrarAlerta(mensaje) {
 }
 
 .btn.consultar {
-  background-color: #3498db;
+  background-color: #e67e22;
   color: white;
+  border-radius: 8px;
 }
 
 .btn.consultar:hover {
-  background-color: #2980b9;
+  background-color: #d35400;
 }
 
-.venta-scroll {
+.registro-scroll {
   max-height: 500px;
   overflow-y: auto;
   padding-right: 8px;
@@ -161,50 +171,52 @@ function mostrarAlerta(mensaje) {
   scrollbar-width: thin;
 }
 
-.venta-scroll::-webkit-scrollbar {
+.registro-scroll::-webkit-scrollbar {
   width: 8px;
 }
 
-.venta-scroll::-webkit-scrollbar-track {
+.registro-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.venta-scroll::-webkit-scrollbar-thumb {
+.registro-scroll::-webkit-scrollbar-thumb {
   background-color: #f8c471;
   border-radius: 4px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
-.venta-table .table-header,
-.venta-table .table-row {
+.registro-table .table-header,
+.registro-table .table-row {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  padding: 12px 16px;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0.5%;
+  align-items: center;
+  
   font-size: 14px;
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.venta-table .table-header {
+.registro-table .table-header {
   background: #f8c471;
   color: #4d2c0c;
   text-transform: uppercase;
   font-weight: bold;
 }
 
-.venta-table .table-row {
+.registro-table .table-row {
   background: #fdf6ec;
   margin-top: 8px;
   transition: 0.2s;
 }
 
-.venta-table .table-row:nth-child(even) {
+.registro-table .table-row:nth-child(even) {
   background: #faebd7;
 }
 
-.venta-table .table-row:hover {
+.registro-table .table-row:hover {
   background: #f5cba7;
   transform: scale(1.01);
 }

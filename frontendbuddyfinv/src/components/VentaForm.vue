@@ -208,7 +208,7 @@
             <!-- Checkbox para solicitar factura (colocar antes del footer del modal) -->
             <div v-if="!ventaCreada" style="margin:10px 0; display:flex; align-items:center; gap:10px;">
               <input id="solicitaFactura" type="checkbox" v-model="solicitaFactura" />
-              <label for="solicitaFactura" style="font-weight:700; color:#333;">Solicita factura (descargar PDF al confirmar)</label>
+              <label for="solicitaFactura" style="font-weight:700; color:#333;">Generar Factura</label>
             </div>
             <button type="button" class="btn-secondary" @click="cancelConfirm" :disabled="confirmLoading">Cancelar</button>
             <button type="button" class="btn-primary" @click="confirmCreate" :disabled="confirmLoading">
