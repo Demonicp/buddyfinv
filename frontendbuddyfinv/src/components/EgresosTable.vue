@@ -7,12 +7,13 @@
 
     <div class="card-egreso-table">
       <h2 class="card-title">Lista De Egresos</h2>
+      <h2 class="filtros">Filtros:</h2>
 
       <div class="card-filter-bar">
         <input type="date" v-model="fechaInicio" />
         <input type="date" v-model="fechaFin" />
         <div class="form-group">
-          <label>Categoría:</label>
+
           <select v-model="categoria" class="form-selectFilter">
             <option value="">Seleccione una categoría...</option>
             <option v-for="tipo in tiposEgreso" :key="tipo.idTipoEgreso" :value="tipo.descripcion">
@@ -21,7 +22,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Metodo De pago:</label>
+
           <select v-model="metodoPago" class="form-selectFilter">
   <option value="">Seleccione un metodo de pago...</option>
   <option v-for="metodo in metodosPago" :key="metodo.idMetodoPago" :value="metodo.descripcion">
@@ -441,10 +442,10 @@ async cargarMetodosPago() {
 /* Filtros */
 .card-filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+  gap: 1px 2%;
   justify-content: center;
   align-items: center;
+  height: 100%;
   margin-bottom: 20px;
 }
 
@@ -453,6 +454,18 @@ async cargarMetodosPago() {
   border: 1px solid #ccc;
   border-radius: 6px;
   flex: 0 0 auto; /* evita que se estiren */
+
+}
+
+.filtros{
+  display: flex;
+  font-family: 'Segoe UI', sans-serif;
+  font-weight: bold;
+  color:#e67e22;
+  gap: 12px;
+
+  align-items: left;
+  height: 100%;
 
 }
 
@@ -493,6 +506,9 @@ async cargarMetodosPago() {
 .btn.registrar {
   background-color: #27ae60;
   color: white;
+  height: 38px;
+  width: 15%;
+  font-size: 12px;
 }
 
 .btn.registrar:hover {
@@ -598,12 +614,11 @@ async cargarMetodosPago() {
   text-align: center;
 }
 
-.form-group {
-  margin-bottom: 1rem;
-}
+
 
 .form-group label {
   display: block;
+  
   font-weight: bold;
   margin-bottom: 0.5rem;
   color: #333;
