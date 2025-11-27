@@ -137,8 +137,29 @@ export const EgresoProvider = {
       }
     })
     return handleResponse(res)
+  },
+  async filtrar(fechaInicio, fechaFin, categoria, metodoPago) {
+    const res = await fetch(
+      `${EGRESO_BASE}/filtrarBusqueda?fechaInicio=${encodeURIComponent(fechaInicio)}&fechaFin=${encodeURIComponent(fechaFin)}&categoria=${encodeURIComponent(categoria)}&metodoPago=${encodeURIComponent(metodoPago)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeader()
+        }
+      }
+    );
+  
+    if (!res.ok) {
+      const mensajeError = await res.text(); 
+      throw new Error(mensajeError);         
+    }
+  
+  
+    return handleResponse(res)
   }
   
+  // fechaInicio, fechaFin, categoria, metodoPago
   
 
 

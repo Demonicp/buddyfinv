@@ -11,10 +11,32 @@
       <div class="card-filter-bar">
         <input type="date" v-model="fechaInicio" />
         <input type="date" v-model="fechaFin" />
-        <button class="btn buscar" @click="filtrarFechas">Buscar</button>
+        <div class="form-group">
+          <label>Categoría:</label>
+          <select v-model="categoria" class="form-selectFilter">
+            <option value="">Seleccione una categoría...</option>
+            <option v-for="tipo in tiposEgreso" :key="tipo.idTipoEgreso" :value="tipo.descripcion">
+              {{ tipo.descripcion }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Metodo De pago:</label>
+          <select v-model="metodoPago" class="form-selectFilter">
+  <option value="">Seleccione un metodo de pago...</option>
+  <option v-for="metodo in metodosPago" :key="metodo.idMetodoPago" :value="metodo.descripcion">
+    {{ metodo.descripcion }}
+  </option>
+</select>
+
+</div>
+
+
+        <button class="btn buscar" @click="filtrar">Buscar</button>
         <button class="btn limpiar" @click="limpiarFiltros">Limpiar</button>
         <button class="btn registrar" @click="abrirModal">Registrar egreso</button>
-        <button class="btn consultar" @click="consultarEgreso">Consultar egreso</button>
+        
+        
       </div>
 
       <div class="card-scroll">
@@ -75,11 +97,13 @@
         <div class="form-group">
           <label>Método de Pago:</label>
           <select v-model="nuevoEgreso.metodoPago" class="form-select">
-            <option value="">Seleccione...</option>
-            <option value="Efectivo">Efectivo</option>
-            <option value="Transferencia">Transferencia</option>
-            <option value="Tarjeta">Tarjeta</option>
-          </select>
+    <option value="">Seleccione...</option>
+      <option v-for="metodo in metodosPago" :key="metodo.idMetodoPago" :value="metodo.descripcion">
+      {{ metodo.descripcion }}
+    </option>
+    </select>
+
+
         </div>
 
         <div class="modal-buttons">
@@ -103,6 +127,9 @@ export default {
       mostrarModal: false, // Controla la visibilidad del modal de registro el false es porque mientras no se unda el boton no se abra el formulario
        fechaInicio: '', // ← esta línea es clave
       fechaFin: '',
+      categoria: '', // Categoría o tipo de egreso // Valor monetario del egreso
+      metodoPago: '',
+      metodosPago:[],
       // Objeto que almacena los datos del nuevo egreso a registrar
       nuevoEgreso: {
         fecha: '', // Fecha del egreso (formato YYYY-MM-DD)
@@ -128,17 +155,41 @@ export default {
     }
   },
   methods: {
+    //no borraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar despues lo cambio
+    //esto viene siendo el provider de tipos de egreso(no lo vi necesario crear un provider y simplemente lo traje aqui)
     async cargarTiposEgreso() {
-    try {
-      const response = await fetch('http://localhost:8080/tipo-egresos');
-      const data = await response.json();
-      this.tiposEgreso = data;
-    } catch (error) {
-      console.error('Error al cargar tipos de egreso:', error);
-    }
-  },mounted() {
-  this.cargarTiposEgreso();
+  try {
+    const response = await fetch('http://localhost:8080/tipo-egresos', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}` // ← token desde localStorage
+      }
+    });
+    const data = await response.json();
+    this.tiposEgreso = data;
+  } catch (error) {
+    console.error('Error al cargar tipos de egreso:', error);
+  }
 },
+ //esto viene siendo el provider de tipos de egreso(no lo vi necesario crear un provider y simplemente lo traje aqui)
+ //no borraaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaar despues lo cambio
+async cargarMetodosPago() {
+  try {
+    const response = await fetch('http://localhost:8080/metodo-pagos', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}` // ← mismo header
+      }
+    });
+    const data = await response.json();
+    this.metodosPago = data;
+  } catch (error) {
+    console.error('Error al cargar métodos de pago:', error);
+  }
+}
+,
 
 
    
@@ -175,11 +226,7 @@ export default {
       }
     },
     
-   
-    consultarEgreso() {
-      alert('Funcionalidad de consultar egreso - Por implementar')
-      console.log('Consultar egreso - Funcionalidad pendiente')
-    },
+  
     
     /**
      * Abre el modal de registro de egreso
@@ -213,6 +260,7 @@ export default {
         categoria: '',
         costo: null,
         metodoPago: ''
+        
       }
     },
     
@@ -280,6 +328,8 @@ export default {
     limpiarFiltros() {
   this.fechaInicio = ''
   this.fechaFin = ''
+  this.categoria=''
+  this.metodoPago=''
   this.cargarEgresos()
   console.log('Filtros limpiados')
 }
@@ -309,7 +359,23 @@ export default {
   } catch (error) {
     console.error('Error al filtrar egresos:', error.message)
   }
-},
+},async filtrar() {
+  try {
+    const data = await EgresoProvider.filtrar(
+      this.fechaInicio,
+      this.fechaFin,
+      this.categoria,
+      this.metodoPago  // ← usa el mismo campo que tienes en el select
+    );
+
+    this.egresos = Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("❌ Error al filtrar egresos:", error.message);
+    const mensaje = await error.response?.text?.() || error.message;
+    alert(mensaje); // ← esto lanza el popup como el de la imagen
+  }
+}
+,
 
 
   },
@@ -317,6 +383,8 @@ export default {
    
     await this.cargarEgresos()
     await this.cargarTiposEgreso()
+    await this.cargarTiposEgreso()
+    await this.cargarMetodosPago()
   }
 }
 </script>
@@ -376,6 +444,7 @@ export default {
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
+  align-items: center;
   margin-bottom: 20px;
 }
 
@@ -383,7 +452,11 @@ export default {
   padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  flex: 0 0 auto; /* evita que se estiren */
+
 }
+
+
 
 /* Botones base */
 .btn {
@@ -396,6 +469,7 @@ export default {
   font-family: 'Segoe UI', sans-serif;
   font-size: 0.9rem;
   letter-spacing: 0.5px;
+  
 }
 
 .btn.buscar {
@@ -542,9 +616,19 @@ export default {
   border: 1px solid #ccc;
   border-radius: 6px;
 }
+.form-selectFilter {
+  width: auto;
+  min-width: 160px;
+  max-width: 220px;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
 
 .modal-buttons {
   display: flex;
+  
   justify-content: space-between;
   margin-top: 1.5rem;
 }
