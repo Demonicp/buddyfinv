@@ -41,6 +41,30 @@ List<Egreso> findByPropietario(@Param("idPropietario") Long idPropietario);
     Double sumEgresosByPropietarioId(@Param("idPropietario") Long idPropietario);
 
 
+
+
+    @Query("SELECT e FROM Egreso e " +
+    "JOIN FETCH e.tipoEgreso te " +
+    "JOIN FETCH e.metodoPago mp " +
+    "WHERE e.propietario.id = :idPropietario " +
+    "AND e.fecha BETWEEN :fechaInicio AND :fechaFin " +
+    "AND (:categoria IS NULL OR te.descripcion = :categoria) " +
+    "AND (:metodoPago IS NULL OR mp.descripcion = :metodoPago)")
+List<Egreso> filtrar(@Param("idPropietario") Long idPropietario,
+                  @Param("fechaInicio") LocalDate fechaInicio,
+                  @Param("fechaFin") LocalDate fechaFin,
+                  @Param("categoria") String categoria,
+                  @Param("metodoPago") String metodoPago);
+
+
+
+
+
+
+
+
+
+
     @Query("""
         SELECT e FROM Egreso e
         JOIN FETCH e.tipoEgreso
