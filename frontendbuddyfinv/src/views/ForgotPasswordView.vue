@@ -65,7 +65,7 @@ export default {
           name: "verify-code",
           query: { u: this.usernameOrEmail },
         });
-      }, 1000);
+      }, 4000);
     },
   },
 };

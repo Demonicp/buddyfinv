@@ -5,30 +5,46 @@
 
       <!-- 🔹 Bloque de filtros -->
       <div class="filtros-card">
-        <h3 class="filtros-title">Filtrar productos</h3>
-        <div class="filtros-content">
-          <input v-model="codigo" placeholder="Código producto" />
-          <input v-model="nombre" placeholder="Nombre producto" />
-          <select v-model="idTipoSeleccionado">
-            <option value="">-- Selecciona tipo --</option>
-            <option
-              v-for="tipo in tipos"
-              :key="tipo.idTipoProducto"
-              :value="tipo.idTipoProducto"
-            >
-              {{ tipo.observacion }}
-            </option>
-          </select>
+  <h3 class="filtros-title">Filtrar productos</h3>
+  <div class="filtros-content">
+    <!-- Código: solo números, máx 6 -->
+    <input
+      v-model="codigo"
+      placeholder="Código producto"
+      maxlength="6"
+      @input="codigo = codigo.replace(/[^0-9]/g, '')"
+    />
 
-          <button @click="buscarProducto">Buscar producto</button>
-          <button @click="eliminarFiltro">Eliminar filtro</button>
-        </div>
+    <!-- Nombre: solo letras y espacios, máx 150 -->
+    <input
+      v-model="nombre"
+      placeholder="Nombre producto"
+      maxlength="150"
+      @input="nombre = nombre.replace(/[^a-zA-Z\s]/g, '')"
+    />
 
-        <!-- 🔹 Mensaje de error -->
-        <div v-if="errorBusqueda" class="error-card">
-          <p class="error-msg">{{ errorBusqueda }}</p>
-        </div>
-      </div>
+    <!-- Tipo de producto -->
+    <select v-model="idTipoSeleccionado">
+      <option value="">-- Selecciona tipo --</option>
+      <option
+        v-for="tipo in tipos"
+        :key="tipo.idTipoProducto"
+        :value="tipo.idTipoProducto"
+      >
+        {{ tipo.observacion }}
+      </option>
+    </select>
+
+    <!-- Botones -->
+    <button @click="buscarProducto">Buscar producto</button>
+    <button @click="eliminarFiltro">Eliminar filtro</button>
+  </div>
+
+  <!-- 🔹 Mensaje de error -->
+  <div v-if="errorBusqueda" class="error-card">
+    <p class="error-msg">{{ errorBusqueda }}</p>
+  </div>
+</div>
 
       <!-- 🔹 Tabla -->
       <div class="table-scroll">

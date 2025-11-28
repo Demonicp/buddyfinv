@@ -7,13 +7,14 @@
       <h2>Verificar código</h2>
 
       <div class="input-group">
-        <input
-          type="text"
-          v-model="code"
-          maxlength="6"
-          placeholder="Código de verificación"
-        />
-      </div>
+  <input
+    type="text"
+    v-model="code"
+    maxlength="6"
+    placeholder="Código de verificación"
+    @input="code = code.replace(/[^0-9]/g, '')"
+  />
+</div>
 
       <button @click="verify" :disabled="loading">
         {{ loading ? "Verificando..." : "Verificar código" }}

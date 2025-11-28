@@ -61,8 +61,8 @@ public class SecurityConfig {
                 .requestMatchers("/ventas/detalladas").hasRole("ADMIN")
                 .requestMatchers("ventas/crearVenta").authenticated()
 
-                .requestMatchers("/Egresos/**").authenticated()
-                .requestMatchers("/ingresos/**").permitAll()
+                .requestMatchers("/Egresos/**").hasRole("ADMIN")
+                .requestMatchers("/ingresos/**").hasRole("ADMIN")
                 .requestMatchers("/tipo-egresos/**").authenticated()
                 .requestMatchers("/tipo-producto/**").hasRole("ADMIN")
                 .requestMatchers("/estado-producto/**").authenticated()
