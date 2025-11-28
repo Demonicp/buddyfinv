@@ -219,7 +219,23 @@ const routes = [
         meta: { requiresAuth: true }
       }
     ]
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/ForgotPasswordView.vue')
+  },
+  {
+    path: '/verify-code',
+    name: 'verify-code',
+    component: () => import('@/views/VerifyCodeView.vue')
+  },
+  {
+    path: '/reset-password',
+    name: 'change-password',
+    component: () => import('@/views/ChangePasswordView.vue')
   }
+  
 ]
 
 const router = createRouter({

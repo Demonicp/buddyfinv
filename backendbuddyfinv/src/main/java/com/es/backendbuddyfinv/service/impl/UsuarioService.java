@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.es.backendbuddyfinv.dto.UsuarioCrearDTO;
@@ -18,13 +19,30 @@ import com.es.backendbuddyfinv.repository.UsuarioRepository;
 public class UsuarioService {
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
     private RolRepository rolRepository;
 
+    UsuarioService(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     public Usuario findByUsuario(String username) {
         return usuarioRepository.findByUsuario(username)
             .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+    }
+
+    //David Solarte crea el metodo para buscar por usuario o email
+    public Optional<Usuario> findByUsuarioOrEmail(String usuarioOrEmail){
+        return usuarioRepository.findByUsuarioOrEmail(usuarioOrEmail, usuarioOrEmail);
+    }
+    //David Solarte crea el metodo para actualizar password(hasheada)
+    public void actualizarPassword(Usuario usuario, String nuevaPassword){
+        usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+        usuarioRepository.save(usuario);
     }
 
     // Crear un nuevo usuario

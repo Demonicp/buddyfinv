@@ -22,6 +22,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     List<Usuario> findByAdministradorId(Long idAdministrador);
     
+    //David Solarte creó este metodo para buscar username o email
+    Optional<Usuario> findByUsuarioOrEmail(String usuario, String email);
+    
     boolean existsByNitUsuario(String nitUsuario);
     boolean existsByNombre(String nombre);
     boolean existsByNegocio(String negocio);

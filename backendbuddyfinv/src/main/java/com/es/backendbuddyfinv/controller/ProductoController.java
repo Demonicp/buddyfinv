@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
+import java.util.NoSuchElementException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,9 @@ import com.es.backendbuddyfinv.dto.ProductoCrearDTO;
 import com.es.backendbuddyfinv.dto.ProductoDTO;
 import com.es.backendbuddyfinv.dto.ProductoEdicionDTO;
 import com.es.backendbuddyfinv.dto.ProductoReabastecerDTO;
+
+import com.es.backendbuddyfinv.dto.ProductoSelectorDTO;
+
 import com.es.backendbuddyfinv.model.Producto;
 import com.es.backendbuddyfinv.repository.InventarioRepository;
 import com.es.backendbuddyfinv.security.CustomUserDetails;
@@ -350,7 +354,41 @@ public ResponseEntity<?> guardarModificacionProducto(@RequestBody ProductoEdicio
                              .body("Error buscando productos: " + ex.getMessage());
         }
     }
+///Santiago Montenegro Historia 17
+@GetMapping("/inventario/search")
+public ResponseEntity<?> buscarInventario(
+        @RequestParam(required = false) Long idProducto,
+        @RequestParam(required = false) String nombre,
+        @RequestParam(required = false) Long idTipoProducto) {
 
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long requesterId = userDetails.getIdUsuario();
+    List<String> roles = List.of(userDetails.getRol()); // si tu CustomUserDetails maneja lista, adapta
+
+    try {
+        // 🔹 Usa ProductoDTO en lugar de ProductoSelectorDTO
+        List<ProductoDTO> resultados = productoService.buscarInventario(
+                requesterId, roles, idProducto, nombre, idTipoProducto);
+
+        return ResponseEntity.ok(resultados);
+
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body("Debes completar por lo menos un campo de búsqueda");
+    } catch (NoSuchElementException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                             .body("El producto buscado no está registrado en el inventario");
+    } catch (Exception ex) {
+        logger.error("Error en buscarInventario: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body("Error buscando productos: " + ex.getMessage());
+    }
+}
+///Santiago Montenegro Historia 17
 
 
 }
