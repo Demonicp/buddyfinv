@@ -1,7 +1,7 @@
 <template>
   <div class="reabastecer-wrapper">
     <div class="card">
-      <h2>Ingresa el codigo de tu producto</h2>
+      <h2>Ingresa el código de tu producto</h2>
 
       <!-- BARRA DE BÚSQUEDA -->
       <div class="busqueda">

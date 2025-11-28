@@ -16,17 +16,18 @@ const ventas = ref([])
 const cargando = ref(true)
 const usuarioStore = useUsuarioStore()
 
-
 onMounted(async () => {
   try {
+    // Verificar si el usuario existe en el store
     if (!usuarioStore.id) {
       const token = localStorage.getItem('token')
       if (token) usuarioStore.establecerDatosDesdeToken(token)
     }
-    const ventasCrudas = await VentaProvider.getDetalladas()
-    console.log('Ventas recibidas:', ventasCrudas)
-ventas.value = ventasCrudas
+
+    // 🔥 SOLAMENTE UNA LLAMADA AL BACKEND
     ventas.value = await VentaProvider.getDetalladas()
+    console.log('Ventas recibidas:', ventas.value)
+
   } catch (error) {
     console.error('Error al cargar ventas:', error.message)
   } finally {

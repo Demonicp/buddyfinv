@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.es.backendbuddyfinv.dto.VentaCrearDTO;
@@ -68,6 +69,40 @@ public class VentaController {
         }
     }
 
+    /*@GetMapping("/filtrar")
+        public ResponseEntity<List<VentaDetalladaDTO>> filtrarVentas(
+        @RequestParam(required = false) Long idVenta,
+        @RequestParam(required = false) String fechaDesde,
+        @RequestParam(required = false) String fechaHasta,
+        @RequestParam(required = false) Double totalMin,
+        @RequestParam(required = false) Double totalMax,
+        @RequestParam(required = false) String metodoPago
+        //porque añadir clientes y empleados si no lo piden en la hu
+
+) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication == null || !authentication.isAuthenticated()) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+    Long idPropietario = userDetails.getIdUsuario();
+
+    List<VentaDetalladaDTO> ventas = ventaService.filtrarVentas(
+        idPropietario,
+        idVenta,
+        fechaDesde,
+        fechaHasta,
+        totalMin,
+        totalMax,
+        metodoPago
+        
+    );
+
+    return ResponseEntity.ok(ventas);
+}
+*/
 
     
 

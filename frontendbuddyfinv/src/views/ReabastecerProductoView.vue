@@ -1,6 +1,6 @@
 <template>
   <div class="vista-reabastecer">
-    <h2>Aqui podras reabastecer la cantidad de tus productos</h2>
+    <h2>Aquí podrás reabastecer la cantidad de tus productos</h2>
     <InvReabastecerForm/>
   </div>
 </template>
