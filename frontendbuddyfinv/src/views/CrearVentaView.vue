@@ -5,7 +5,7 @@
       <h2 class="crear-venta-title">Registrar Venta</h2>
       </div>
 
-      <!-- aquí va tu formulario real; si ya tienes componentes, insértalos -->
+
       <VentaForm /> 
 
     </div>
@@ -32,6 +32,7 @@ export default {
 .crear-venta-card {
   background: #fff;
   padding: 2%;
+  height: 100%;
   justify-content: center;
   border-radius: 10px;
  

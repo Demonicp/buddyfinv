@@ -1,13 +1,6 @@
 <template>
   <div class="registro-wrapper">
     <div class="registro-card">
-
-
-      <div class="registro-actions">
-
-
-      </div>
-
       <div class="registro-scroll">
         <div class="registro-table">
           <div class="table-header" role="row">
@@ -39,12 +32,14 @@
 
             <transition name="fade">
               <div v-if="ventaSeleccionada === venta.idVenta" class="detalle-expandido">
-                <p><strong>Cliente:</strong> {{ venta.cliente || '—' }}</p>
+                <div class="detallito">
+                  <p><strong>Cliente:</strong> {{ venta.cliente || '—' }}</p>
 
-                <!-- AGREGADO: mostrar el id del empleado que realizó la venta (propiedad 'empleadoId' devuelta por el backend) -->
-                <p><strong>ID Empleado:</strong> {{ venta.empleadoId ?? '—' }}</p>
-                <p><strong>Método de pago:</strong> {{ venta.metodoPago }}</p>
-                <p><strong>Estado:</strong> {{ venta.estadoVenta }}</p>
+                  <!-- AGREGADO: mostrar el id del empleado que realizó la venta (propiedad 'empleadoId' devuelta por el backend) -->
+                  <p><strong>ID Empleado:</strong> {{ venta.empleadoId ?? '—' }}</p>
+                  <p><strong>Método de pago:</strong> {{ venta.metodoPago }}</p>
+                  <p><strong>Estado:</strong> {{ venta.estadoVenta }}</p>
+                </div>
 
 
 
@@ -100,37 +95,42 @@ function mostrarAlerta(mensaje) {
 
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 .registro-wrapper {
   width: 100%;
   height: 100%;
 
-  margin: 10px auto;
-  font-family: 'Segoe UI', sans-serif;
+
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500;
 }
 
 .registro-card {
   background: #fffaf3;
-  padding: 20px;
-  
+  padding: 1%;
+
+  height: 72%;
+  font-weight: bold;
+  display: grid;
+  overflow: auto;
+
   border-radius: 16px;
   box-shadow: inset 0 0 0 2px #f8c471;
 
 }
 
 .registro-title {
+
   text-align: center;
   color: #e67e22;
-  margin-bottom: 20px;
+
   font-size: 2rem;
   font-weight: bold;
 }
 
-.registro-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 1rem;
-}
+
 
 .btn {
   padding: 8px 16px;
@@ -164,37 +164,42 @@ function mostrarAlerta(mensaje) {
 }
 
 .registro-scroll {
-  max-height: 500px;
+  height: 100%;
   overflow-y: auto;
+  overflow-x: auto  ;
   padding-right: 8px;
   scrollbar-color: #f8c471 transparent;
   scrollbar-width: thin;
 }
 
-.registro-scroll::-webkit-scrollbar {
-  width: 8px;
-}
 
-.registro-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
 
-.registro-scroll::-webkit-scrollbar-thumb {
-  background-color: #f8c471;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
 
-.registro-table .table-header,
+
+
+
+.registro-table .table-header{
+
+  font-weight: bolder;
+  display: grid;
+  
+  height: 100%;
+  font-size: medium;
+  
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0.5%;
+  border-radius: 10px;
+}
 .registro-table .table-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   padding: 0.5%;
   align-items: center;
+  height: auto;
   
   font-size: 14px;
-  font-weight: 500;
+  font-family: 'Outfit', sans-serif;
+  font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
 }
@@ -204,25 +209,32 @@ function mostrarAlerta(mensaje) {
   color: #4d2c0c;
   text-transform: uppercase;
   font-weight: bold;
+  font-family: 'Outfit', sans-serif;
 }
 
 .registro-table .table-row {
   background: #fdf6ec;
   margin-top: 8px;
+  font-family: 'Outfit', sans-serif;
   transition: 0.2s;
 }
 
 .registro-table .table-row:nth-child(even) {
   background: #faebd7;
+  font-family: 'Outfit', sans-serif;
+  font-weight: bold;
 }
 
 .registro-table .table-row:hover {
   background: #f5cba7;
   transform: scale(1.01);
+  font-weight: bold;
 }
 
 .cell {
   color: #333;
+  
+  
 }
 
 .detalle-expandido {
@@ -238,22 +250,25 @@ function mostrarAlerta(mensaje) {
 
 .detalle-expandido p {
   margin: 6px 0;
+  
 }
 
 .detalle-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  font-weight: bold;
   margin-top: 1rem;
   background: #fff;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 .detalle-table th {
   background: #f8c471;
+  font-weight: 700;
   color: #4d2c0c;
   padding: 10px;
   text-align: left;
@@ -262,6 +277,7 @@ function mostrarAlerta(mensaje) {
 
 .detalle-table td {
   padding: 10px;
+  
   font-size: 13px;
   color: #333;
   border-top: 1px solid #eee;
@@ -274,5 +290,15 @@ function mostrarAlerta(mensaje) {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+
+.detallito{
+  display: grid;  
+  font-family: 'Outfit', sans-serif;
+  grid-template-columns: repeat(2, 1fr);
+  font-weight: bold;
+  border-radius: 8px;
+
 }
 </style>

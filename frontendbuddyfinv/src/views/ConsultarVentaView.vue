@@ -1,9 +1,9 @@
 <template>
   <div class="consultar-venta-container">
-    <div v-if="cargando">Cargando tus ventas...</div>
-    <div v-else-if="ventas.length === 0">No tienes ventas registradas.</div>
+
     <VentaFilters :ventas="ventas" @update="ventasFiltradas = $event" />
     <RegistroTable :ventas="ventasFiltradas" />
+
   </div>
 </template>
 
@@ -38,7 +38,4 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
 
-
-</style>

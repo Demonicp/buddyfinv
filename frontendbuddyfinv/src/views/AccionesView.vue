@@ -69,15 +69,15 @@ export default {
 
 <style scoped>
 .dashboard-container {
-  height: 90% ;
+  height: 100% ;
 }
 
 .dashboard-content {
   padding: 1rem;
-  max-width: 100vw;
-  height: 90%;
 
-  font-family: 'Segoe UI', sans-serif;
+  height: 100%;
+
+  font-family: 'Outfit', sans-serif;
 }
 
 .dashboard-title {
