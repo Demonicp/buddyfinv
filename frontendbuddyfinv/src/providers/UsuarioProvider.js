@@ -1,5 +1,6 @@
 import { UsuarioDTO } from '../models/Usuario.js'
 
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 const USUARIOS_BASE = `${API_BASE_URL}/usuarios`
 
@@ -102,6 +103,21 @@ export const UsuarioProvider = {
         ...getAuthHeader()
       
       }
+    })
+    return handleResponse(res)
+  },
+
+
+
+
+  async updateUsers (id, UsuarioUpdateDTO) {
+    const res = await fetch(`${USUARIOS_BASE}/update/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader()
+      },
+      body: JSON.stringify(UsuarioUpdateDTO)
     })
     return handleResponse(res)
   }
